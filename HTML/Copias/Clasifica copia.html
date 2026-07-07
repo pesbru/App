@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Clasificación - Drag & Drop</title>
+    <style>
+        :root {
+            --azul-google: #1a73e8;
+            --rojo-error: #d93025;
+            --verde-exito: #1e8e3e;
+            --gris-suave: #f1f3f4;
+            --marron-obs: #5d4037;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #fafafa; color: #3c4043; user-select: none; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); text-align: center; }
+        #pantalla-juego, #pantalla-resultados { display: none; }
+
+        .setup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .full-width { grid-column: 1 / -1; }
+        select, button { padding: 12px; border-radius: 4px; border: 1px solid #dadce0; font-size: 1rem; }
+        
+        .btn-main { background: var(--azul-google); color: white; font-weight: bold; border: none; cursor: pointer; }
+        .btn-secondary { background: #e8f0fe; color: var(--azul-google); border: none; cursor: pointer; }
+        .btn-danger { background: #feeae6; color: var(--rojo-error); border: none; cursor: pointer; }
+
+        /* Bolsa de palabras flotantes */
+        .bolsa-palabras { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; background: #fffdf0; border: 2px dashed #b8860b; padding: 20px; border-radius: 8px; margin: 20px 0; min-height: 60px; }
+        
+        /* Ficha arrastrable */
+        .palabra-ficha { background: white; border: 2px solid var(--azul-google); color: var(--azul-google); padding: 10px 18px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.1s; }
+        .palabra-ficha:active { cursor: grabbing; transform: scale(1.05); }
+
+        /* Columnas de Destino */
+        .contenedor-columnas { display: flex; justify-content: center; gap: 15px; margin-top: 30px; flex-wrap: wrap; }
+        .columna-destino { flex: 1; min-width: 180px; max-width: 280px; background: var(--gris-suave); border: 2px solid #ccc; border-radius: 8px; padding: 15px; min-height: 250px; transition: background 0.2s, border-color 0.2s; }
+        .columna-destino.drag-over { background: #e3f2fd; border-color: var(--azul-google); }
+        .columna-destino h3 { margin: 0 0 15px 0; font-size: 1.1rem; color: #444; border-bottom: 2px solid #ddd; padding-bottom: 8px; }
+        
+        .zona-drop { display: flex; flex-direction: column; gap: 8px; min-height: 200px; }
+        .zona-drop .palabra-ficha { cursor: default; background: #e8f0fe; text-align: center; font-size: 1rem; padding: 8px; }
+
+        /* Estilos idénticos de reportes y fuegos artificiales */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
+        th, td { border: 1px solid #dadce0; padding: 8px 4px; text-align: center; }
+        th { background: var(--gris-suave); }
+        .verde { color: var(--verde-exito); font-weight: bold; }
+        .rojo { color: var(--rojo-error); font-weight: bold; }
+
+        #capa-fuegos { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9999; display: none; overflow: hidden; }
+        .particula { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: estallido 1.2s ease-out forwards; }
+        @keyframes estallido { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; } }
+        .letrero-diez { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffd700; font-size: 5rem; font-weight: bold; text-shadow: 0 0 20px gold; font-family: sans-serif; animation: latido 1s infinite alternate; }
+        @keyframes latido { 0% { transform: translate(-50%, -50%) scale(0.9); } 100% { transform: translate(-50%, -50%) scale(1.1); } }
+
+        .tarjeta-trofeo { border: 2px solid #ffd700; margin: 15px 0; padding: 15px; border-radius: 8px; background: #fffdf0; display: flex; align-items: center; gap: 20px; text-align: left; box-shadow: 0 2px 4px rgba(218,165,32,0.15); }
+        .icono-copa { font-size: 3rem; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
+        .info-trofeo h4 { margin: 0 0 5px 0; color: #b8860b; font-size: 1.2rem; }
+        .info-trofeo p { margin: 2px 0; color: #555; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div id="capa-fuegos"></div>
+
+<div class="container" id="menu-principal">
+    <h2 id="titulo-panel" style="color: var(--azul-google);">Cargando Clasificador...</h2>
+    <div class="setup-section">
+        <label>Usuario:</label>
+        <select id="sel-usuario"></select>
+        
+        <label>Batería de Clasificación:</label>
+        <select id="sel-bateria" onchange="actualizarBateriaSeleccionada()"></select>
+        
+        <label>Número de Elementos:</label>
+        <select id="sel-num-preguntas">
+            <option value="10">10 palabras</option>
+            <option value="15">15 palabras</option>
+            <option value="20">20 palabras</option>
+            <option value="30">30 palabras</option>
+        </select>
+        
+        <button class="btn-main full-width" onclick="comenzarJuego()">INICIAR CLASIFICACIÓN</button>
+        <button class="btn-secondary" onclick="verHistorial()">VER HISTORIAL</button>
+        <button class="btn-secondary" onclick="verTrofeos()">SALA DE TROFEOS</button>
+        <button class="btn-danger full-width" onclick="borrarDatosUsuario()">BORRAR MI HISTORIAL</button>
+    </div>
+</div>
+
+<div class="container" id="pantalla-juego">
+    <h3 style="color: #555; margin: 0;">Arrastra cada palabra a su categoría correspondiente</h3>
+    <div class="bolsa-palabras" id="bolsa-fichas"></div>
+    <div class="contenedor-columnas" id="columnas-contenedor"></div>
+    <button class="btn-main full-width" onclick="finalizarClasificacion()" style="margin-top: 30px; font-size: 1.2rem;">TERMINAR Y CORREGIR</button>
+</div>
+
+<div class="container" id="pantalla-resultados">
+    <div id="resumen-nota" style="text-align:center;"></div>
+    <div id="tabla-reporte"></div>
+    <button class="btn-main full-width" onclick="volverAlInicio()" style="margin-top:20px;">INICIO</button>
+</div>
+
+<script src="../Usuarios/Usuarios.js"></script>
+
+<script>
+    let categoriasBateriaActual = [];
+    let poolPalabrasOriginales = [];
+    let itemsJuegoActual = [];
+    let mapaCategoriasActivas = []; 
+    let bateriaSeleccionadaObjeto = null;
+    let BATERIAS_CARGADAS = {};
+
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        const grupoNombre = params.get('config') || 'Matematicas'; 
+        const rutaGrupo = params.get('rutaConfig') || 'Grupos_Baterias';
+
+        const scriptGrupo = document.createElement('script');
+        scriptGrupo.src = `${rutaGrupo}/${grupoNombre}.js`;
+        
+        scriptGrupo.onload = () => {
+            if (typeof CONFIG_EXAMENES === 'undefined') {
+                document.getElementById('titulo-panel').innerHTML = `<span class="rojo">Error: CONFIG_EXAMENES no definido en ${grupoNombre}.js</span>`;
+                return;
+            }
+            cargarBateriasEnCadena(0, CONFIG_EXAMENES.baterias);
+        };
+
+        scriptGrupo.onerror = () => {
+            document.getElementById('titulo-panel').innerHTML = `<span class="rojo">Error al cargar archivo: ${grupoNombre}.js</span>`;
+        };
+
+        document.head.appendChild(scriptGrupo);
+    };
+
+    function cargarBateriasEnCadena(index, listaBaterias) {
+        if (index >= listaBaterias.length) {
+            inicializarPanelControl();
+            return;
+        }
+
+        const bat = listaBaterias[index];
+        const scriptBat = document.createElement('script');
+        scriptBat.src = `Baterias/${bat.archivo}`;
+
+        scriptBat.onload = () => {
+            let datosCargados = window.DATOS_BATERIA || (typeof DATOS_BATERIA !== 'undefined' ? DATOS_BATERIA : null);
+            if (datosCargados) {
+                BATERIAS_CARGADAS[bat.id] = JSON.parse(JSON.stringify(datosCargados));
+                window.DATOS_BATERIA = undefined;
+                if(typeof DATOS_BATERIA !== 'undefined') DATOS_BATERIA = undefined;
+            }
+            cargarBateriasEnCadena(index + 1, listaBaterias);
+        };
+
+        scriptBat.onerror = () => {
+            console.error(`Error al cargar: Baterias/${bat.archivo}`);
+            cargarBateriasEnCadena(index + 1, listaBaterias);
+        };
+
+        document.head.appendChild(scriptBat);
+    }
+
+    function inicializarPanelControl() {
+        document.getElementById('titulo-panel').textContent = `Juego de Clasificar - ${CONFIG_EXAMENES.asignatura}`;
+
+        const selU = document.getElementById('sel-usuario');
+        selU.innerHTML = '';
+        if (typeof LISTADO_USUARIOS !== 'undefined' && LISTADO_USUARIOS.length > 0) {
+            LISTADO_USUARIOS.forEach(u => selU.innerHTML += `<option value="${u}">${u}</option>`);
+        } else {
+            selU.innerHTML = `<option value="Invitado">Invitado</option>`;
+        }
+
+        const selB = document.getElementById('sel-bateria');
+        selB.innerHTML = '';
+        CONFIG_EXAMENES.baterias.forEach(b => {
+            selB.innerHTML += `<option value="${b.id}">${b.titulo}</option>`;
+        });
+
+        actualizarBateriaSeleccionada();
+    }
+
+    function actualizarBateriaSeleccionada() {
+        const idBateria = document.getElementById('sel-bateria').value;
+        bateriaSeleccionadaObjeto = CONFIG_EXAMENES.baterias.find(b => b.id === idBateria);
+        
+        const paqueteData = BATERIAS_CARGADAS[idBateria];
+        if (paqueteData) {
+            categoriasBateriaActual = paqueteData.categorias || [];
+            poolPalabrasOriginales = paqueteData.palabras || [];
+        } else {
+            categoriasBateriaActual = [];
+            poolPalabrasOriginales = [];
+        }
+    }
+
+    function comenzarJuego() {
+        actualizarBateriaSeleccionada();
+
+        if (!poolPalabrasOriginales || poolPalabrasOriginales.length === 0) {
+            return alert("Error: No hay palabras detectadas en esta batería.");
+        }
+
+        const totalItems = poolPalabrasOriginales.length;
+        const cantidadSolicitada = Math.min(totalItems, parseInt(document.getElementById('sel-num-preguntas').value));
+
+        const indicesElegidos = new Set();
+        while (indicesElegidos.size < cantidadSolicitada) {
+            const indexAleatorio = Math.floor(Math.random() * totalItems);
+            indicesElegidos.add(indexAleatorio);
+        }
+
+        itemsJuegoActual = Array.from(indicesElegidos).map((idx, uId) => {
+            return { ...poolPalabrasOriginales[idx], idUnico: `p_${uId}`, categoriaColocada: null };
+        });
+
+        const idsCatPresentes = new Set(itemsJuegoActual.map(item => item.cat));
+        mapaCategoriasActivas = Array.from(idsCatPresentes).sort((a, b) => a - b);
+
+        document.getElementById('menu-principal').style.display = 'none';
+        document.getElementById('pantalla-juego').style.display = 'block';
+
+        construirInterfazDragDrop();
+    }
+
+    function construirInterfazDragDrop() {
+        const bolsa = document.getElementById('bolsa-fichas');
+        bolsa.innerHTML = '';
+        
+        bolsa.addEventListener('dragover', (e) => e.preventDefault());
+        bolsa.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const idFicha = e.dataTransfer.getData('text/plain');
+            const fichaElemento = document.getElementById(idFicha);
+            if (fichaElemento) {
+                bolsa.appendChild(fichaElemento);
+                const item = itemsJuegoActual.find(i => i.idUnico === idFicha);
+                if(item) item.categoriaColocada = null;
+            }
+        });
+
+        itemsJuegoActual.forEach(item => {
+            const ficha = document.createElement('div');
+            ficha.className = 'palabra-ficha';
+            ficha.id = item.idUnico;
+            ficha.textContent = item.texto;
+            ficha.draggable = true;
+            ficha.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', e.target.id); });
+            bolsa.appendChild(ficha);
+        });
+
+        const contenedorColumnas = document.getElementById('columnas-contenedor');
+        contenedorColumnas.innerHTML = '';
+
+        mapaCategoriasActivas.forEach(idCat => {
+            const nombreColumna = categoriasBateriaActual[idCat] || `Categoría ${idCat}`;
+            const divColumna = document.createElement('div');
+            divColumna.className = 'columna-destino';
+            divColumna.innerHTML = `<h3>${nombreColumna}</h3>`;
+
+            const zonaDrop = document.createElement('div');
+            zonaDrop.className = 'zona-drop';
+            zonaDrop.dataset.idCategoria = idCat;
+
+            zonaDrop.addEventListener('dragover', (e) => { e.preventDefault(); divColumna.classList.add('drag-over'); });
+            zonaDrop.addEventListener('dragleave', () => divColumna.classList.remove('drag-over'));
+            zonaDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                divColumna.classList.remove('drag-over');
+                const idFicha = e.dataTransfer.getData('text/plain');
+                const fichaElemento = document.getElementById(idFicha);
+                if (fichaElemento) {
+                    zonaDrop.appendChild(fichaElemento);
+                    const itemData = itemsJuegoActual.find(i => i.idUnico === idFicha);
+                    if (itemData) itemData.categoriaColocada = parseInt(idCat, 10);
+                }
+            });
+
+            divColumna.appendChild(zonaDrop);
+            contenedorColumnas.appendChild(divColumna);
+        });
+    }
+
+    function finalizarClasificacion() {
+        const sinResponder = itemsJuegoActual.some(i => i.categoriaColocada === null);
+        if (sinResponder && !confirm("Quedan palabras sin clasificar. ¿Quieres corregir de todas formas?")) return;
+
+        let a = 0, e = 0, b = 0;
+        itemsJuegoActual.forEach(item => {
+            if (item.categoriaColocada === null) b++;
+            else if (item.cat === item.categoriaColocada) a++;
+            else e++;
+        });
+
+        // CÁLCULO DE LA NOTA DESCONTANDO PROBABILIDAD REAL (Columnas activas: N)
+        const N = mapaCategoriasActivas.length;
+        let notaCalculada = 0;
+        
+        if (N > 1) {
+            notaCalculada = ((a - (e / (N - 1))) / itemsJuegoActual.length) * 10;
+        } else {
+            notaCalculada = (a / itemsJuegoActual.length) * 10;
+        }
+        if (notaCalculada < 0) notaCalculada = 0;
+
+        const esDiezPerfecto = (a === itemsJuegoActual.length && e === 0 && b === 0);
+        const notaTexto = esDiezPerfecto ? "10,00" : notaCalculada.toFixed(2).replace('.', ',');
+
+        const res = {
+            usuario: document.getElementById('sel-usuario').value,
+            bateria: bateriaSeleccionadaObjeto.titulo,
+            fecha: new Date().toLocaleString(),
+            aciertos: a, errores: e, blancos: b, totales: itemsJuegoActual.length,
+            nota: notaTexto
+        };
+
+        let h = JSON.parse(localStorage.getItem('historial_clasifica') || '[]');
+        h.push(res);
+        localStorage.setItem('historial_clasifica', JSON.stringify(h));
+
+        if (esDiezPerfecto) {
+            document.getElementById('pantalla-juego').style.display = 'none';
+            lanzarFuegosArtificiales(() => mostrarResultados(res));
+        } else {
+            mostrarResultados(res);
+        }
+    }
+
+    function lanzarFuegosArtificiales(callbackAlTerminar) {
+        const capa = document.getElementById('capa-fuegos');
+        capa.innerHTML = '<div class="letrero-diez">¡UN 10 PERFECTO! 🏆</div>';
+        capa.style.display = 'block';
+
+        const intervaloFuegos = setInterval(() => {
+            const xOrigen = Math.random() * window.innerWidth;
+            const yOrigen = Math.random() * (window.innerHeight * 0.6);
+            const colorCarcasa = `hsl(${Math.random() * 360}, 100%, 60%)`;
+
+            for (let i = 0; i < 40; i++) {
+                const particula = document.createElement('div');
+                particula.className = 'particula';
+                particula.style.left = xOrigen + 'px';
+                particula.style.top = yOrigen + 'px';
+                particula.style.backgroundColor = colorCarcasa;
+
+                const angulo = Math.random() * Math.PI * 2;
+                const distancia = 40 + Math.random() * 120;
+                const mx = Math.cos(angulo) * distancia;
+                const my = Math.sin(angulo) * distancia;
+
+                particula.style.setProperty('--mx', `${mx}px`);
+                particula.style.setProperty('--my', `${my}px`);
+                capa.appendChild(particula);
+                setTimeout(() => particula.remove(), 1200);
+            }
+        }, 400);
+
+        setTimeout(() => {
+            clearInterval(intervaloFuegos);
+            capa.style.display = 'none';
+            capa.innerHTML = '';
+            callbackAlTerminar();
+        }, 5000);
+    }
+
+    function mostrarResultados(res) {
+        document.getElementById('pantalla-juego').style.display = 'none';
+        document.getElementById('pantalla-resultados').style.display = 'block';
+        document.getElementById('resumen-nota').innerHTML = `<h1>Nota: ${res.nota}</h1><p>A:${res.aciertos} E:${res.errores} B:${res.blancos}</p>`;
+        
+        let html = `<table><tr><th>Palabra</th><th>Tu Respuesta</th><th>Clasificación Real</th><th>Resultado</th></tr>`;
+        itemsJuegoActual.forEach(item => {
+            const esCorrecto = (item.cat === item.categoriaColocada);
+            const txtUsuario = item.categoriaColocada !== null ? categoriasBateriaActual[item.categoriaColocada] : "En blanco";
+            const txtCorrecto = categoriasBateriaActual[item.cat];
+
+            html += `<div style="border-bottom:1px solid #eee; padding:10px; text-align:left;">
+                <p><b>Palabra: ${item.texto}</b></p>
+                <p class="${esCorrecto ? 'verde' : 'rojo'}">Tu respuesta: ${txtUsuario}</p>
+                ${!esCorrecto ? `<p>Correcta: <b>${txtCorrecto}</b></p>` : ''}
+            </div>`;
+        });
+        document.getElementById('tabla-reporte').innerHTML = html;
+    }
+
+    function verHistorial() {
+        const u = document.getElementById('sel-usuario').value;
+        let h = JSON.parse(localStorage.getItem('historial_clasifica') || '[]').filter(x => x.usuario === u);
+        let table = `<h2>Historial Clasificación - ${u}</h2><table><tr><th>Fecha</th><th>Nota</th><th>Batería</th></tr>`;
+        h.reverse().forEach(x => table += `<tr><td>${x.fecha}</td><td>${x.nota}</td><td>${x.bateria}</td></tr>`);
+        document.body.innerHTML = `<div class="container">${table}</table><button class="btn-main full-width" onclick="volverAlInicio()" style="margin-top:20px;">VOLVER</button></div>`;
+    }
+
+    function verTrofeos() {
+        const u = document.getElementById('sel-usuario').value;
+        let hExamenes = JSON.parse(localStorage.getItem('historial_clasifica') || '[]');
+        let examenesConDiez = hExamenes.filter(x => x.usuario === u && (x.nota === "10" || x.nota === "10,00"));
+        
+        let html = `<h2>Sala de Trofeos de ${u} 🏆</h2>`;
+        if (examenesConDiez.length > 0) {
+            examenesConDiez.reverse().forEach(x => {
+                html += `
+                <div class="tarjeta-trofeo">
+                    <div class="icono-copa">🏆</div>
+                    <div class="info-trofeo">
+                        <h4>Clasificación Perfecta (${x.totales} palabras)</h4>
+                        <p><b>Batería:</b> ${x.bateria}</p>
+                        <p><b>Fecha:</b> ${x.fecha}</p>
+                    </div>
+                </div>`;
+            });
+        } else {
+            html += `<p style="margin: 30px 0; color: #777;">Aún no tienes trofeos de clasificación.<br>¡Saca un 10 perfecto para ganar tu primera copa!</p>`;
+        }
+        document.body.innerHTML = `<div class="container" style="text-align:center;">${html}<button class="btn-main full-width" onclick="volverAlInicio()" style="margin-top:20px;">VOLVER</button></div>`;
+    }
+
+    function borrarDatosUsuario() {
+        const u = document.getElementById('sel-usuario').value;
+        if(confirm(`¿Seguro que quieres eliminar el historial de clasificación de ${u}?`)) {
+            let h = JSON.parse(localStorage.getItem('historial_clasifica') || '[]').filter(x => x.usuario !== u);
+            localStorage.setItem('historial_clasifica', JSON.stringify(h));
+            volverAlInicio();
+        }
+    }
+
+    function volverAlInicio() {
+        window.location.href = window.location.pathname + window.location.search;
+    }
+</script>
+</body>
+</html>

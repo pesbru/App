@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructor de Fracciones - Versión Premium</title>
+    <style>
+        :root { --azul: #1a73e8; --azul-palido: #e8f0fe; --rojo: #d93025; --verde: #1e8e3e; --gris: #f1f3f4; --amarillo: #fffde7; --oro: #ffd700; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #fafafa; color: #3c4043; min-height: 100vh; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); text-align: center; }
+        
+        #fireworks { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; display: none; z-index: 9999; 
+            background: rgba(0,0,0,0.9) url('https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJtZ3R6bm94bm94bm94bm94bm94bm94bm94bm94bm94bm94bm94JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26tOZ42Mg6pbTUPHW/giphy.gif') center center no-repeat;
+            background-size: contain;
+        }
+
+        .nav-superior { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .nav-btn { width: 35px; height: 35px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; background: white; transition: 0.2s; }
+        .nav-btn.activa { border: 2px solid var(--azul); transform: scale(1.1); }
+        .nav-btn.contestada { background: var(--azul); color: white; border-color: var(--azul); }
+
+        .layout-ejercicio { display: grid; grid-template-columns: 110px 1fr 110px; align-items: center; gap: 15px; }
+        .workspace { display: flex; justify-content: space-around; align-items: center; padding: 20px; border: 1px solid #eee; border-radius: 8px; min-height: 300px; background: #fff; }
+        
+        .source-blocks { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        .block { width: 45px; height: 45px; border: 1px solid #999; border-radius: 4px; cursor: grab; }
+        .block.rojo { background: var(--rojo); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .block.blanco { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .drop-zone { 
+            width: 235px; min-height: 235px; border: 2px dashed #bbb; 
+            display: grid; grid-template-columns: repeat(5, 45px); grid-auto-rows: 45px; gap: 2px; padding: 5px; background: #fafafa;
+        }
+
+        .fraction-display { font-size: 3.5rem; font-weight: bold; padding-left: 20px; }
+        .frac { display: inline-block; vertical-align: middle; text-align: center; }
+        .frac span { display: block; padding: 0 10px; }
+        .frac span.top { border-bottom: 4px solid #333; }
+
+        .nav-lat { background: var(--azul-palido); color: var(--azul); border: 1px solid #c2d7f7; padding: 15px 5px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .nav-lat:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        #pantalla-ejercicio, #pantalla-resultados, #pantalla-trofeos, #pantalla-historial { display: none; }
+        
+        button.principal { width: 100%; padding: 15px; background: var(--azul); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
+        
+        .trophy-card { 
+            border: 2px solid var(--oro); border-radius: 12px; padding: 20px; 
+            background: #fffdf0; display: inline-block; margin: 10px; width: 180px;
+        }
+        .cup-icon { font-size: 2.5rem; display: block; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background: #f2f2f2; }
+        .btn-del { cursor: pointer; color: var(--rojo); }
+    </style>
+</head>
+<body ondragover="allowDrop(event)" ondrop="removeBlock(event)">
+
+<div id="fireworks"></div>
+
+<div class="container" id="menu-principal">
+    <h2 style="color: var(--azul);">Constructor de Fracciones</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; max-width: 400px; margin: 0 auto;">
+        <label>Usuario:</label>
+        <select id="sel-usuario"><option>Miguel</option></select>
+        
+        <label>Batería:</label>
+        <select id="sel-bateria"></select>
+        
+        <label>Nº Ejercicios:</label>
+        <select id="sel-preguntas">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+        </select>
+        
+        <button onclick="comenzar()" style="grid-column: 1/-1; padding: 15px; background: var(--azul); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">COMENZAR</button>
+    </div>
+    
+    <div style="margin-top: 30px; display: flex; justify-content: center; gap: 10px;">
+        <button onclick="verHistorial()" style="padding: 10px; background: #f1f3f4; border: 1px solid #ccc; border-radius: 6px; cursor: pointer;">📅 Historial</button>
+        <button onclick="verTrofeos()" style="padding: 10px; background: #fffdf0; border: 2px solid var(--oro); border-radius: 6px; cursor: pointer; font-weight: bold;">🏆 Trofeos</button>
+    </div>
+</div>
+
+<div class="container" id="pantalla-ejercicio">
+    <div class="nav-superior" id="indicadores-nav"></div>
+    <div id="reloj" style="font-size: 1.2rem; font-weight: bold; color: #666;">00:00</div>
+    <h3 id="enunciado-txt" style="font-size: 1.8rem; background: var(--amarillo); padding: 15px; border-radius: 5px;">---</h3>
+    <div class="layout-ejercicio">
+        <button class="nav-lat" id="btn-ant" onclick="cambiarEjercicio(-1)">Atrás</button>
+        <div class="workspace">
+            <div class="source-blocks">
+                <div class="block rojo" draggable="true" ondragstart="drag(event, 'nuevo_rojo')"></div>
+                <div class="block blanco" draggable="true" ondragstart="drag(event, 'nuevo_blanco')"></div>
+                <small style="color:#888;">Tira fuera<br>para borrar</small>
+            </div>
+            <div class="drop-zone" id="zona-arrastre" ondrop="drop(event); event.stopPropagation();" ondragover="allowDrop(event)"></div>
+            <div class="fraction-display"><div class="frac"><span class="top" id="v-num">0</span><span id="v-den">0</span></div></div>
+        </div>
+        <button class="nav-lat" id="btn-sig" onclick="cambiarEjercicio(1)">Sig.</button>
+    </div>
+    <button onclick="finalizarEjercicio()" class="principal" style="background: var(--verde);">FINALIZAR</button>
+</div>
+
+<div class="container" id="pantalla-resultados">
+    <div id="feedback"></div>
+    <button onclick="location.reload()" class="principal">VOLVER AL INICIO</button>
+</div>
+
+<div class="container" id="pantalla-historial">
+    <h3>Historial de Intentos</h3>
+    <div id="tabla-historial"></div>
+    <button onclick="location.reload()" class="principal">CERRAR</button>
+</div>
+
+<div class="container" id="pantalla-trofeos">
+    <h2 style="color: #b8860b;">🏆 Sala de Trofeos</h2>
+    <div id="lista-trofeos"></div>
+    <button onclick="location.reload()" class="principal">CERRAR</button>
+</div>
+
+<script src="bateria1.js"></script>
+
+<script>
+    const CLAVE_MAESTRA = "Covadonga";
+    let listaEjercicios = [];
+    let respuestasUsuario = []; 
+    let indiceActual = 0;
+    let segundos = 0;
+    let timer;
+
+    window.onload = () => {
+        const selB = document.getElementById('sel-bateria');
+        if(window.bateria1) selB.innerHTML += `<option value="bateria1">Gran Colección de Fracciones</option>`;
+    };
+
+    function comenzar() {
+        const bID = document.getElementById('sel-bateria').value;
+        const totalReq = parseInt(document.getElementById('sel-preguntas').value);
+        listaEjercicios = [...window[bID].ejercicios].sort(() => Math.random() - 0.5).slice(0, totalReq);
+        respuestasUsuario = listaEjercicios.map(() => ({ rojos: 0, blancos: 0, contestada: false }));
+        document.getElementById('menu-principal').style.display = 'none';
+        document.getElementById('pantalla-ejercicio').style.display = 'block';
+        cargarEjercicio();
+        timer = setInterval(() => { segundos++; document.getElementById('reloj').textContent = `${Math.floor(segundos/60).toString().padStart(2,'0')}:${(segundos%60).toString().padStart(2,'0')}`; }, 1000);
+    }
+
+    function cargarEjercicio() {
+        const ej = listaEjercicios[indiceActual];
+        const res = respuestasUsuario[indiceActual];
+        document.getElementById('enunciado-txt').textContent = ej.enunciado;
+        document.getElementById('btn-ant').disabled = (indiceActual === 0);
+        document.getElementById('btn-sig').disabled = (indiceActual === listaEjercicios.length - 1);
+        dibujarBloques(res.rojos, res.blancos);
+        dibujarNavSuperior();
+    }
+
+    function dibujarNavSuperior() {
+        const nav = document.getElementById('indicadores-nav');
+        nav.innerHTML = '';
+        respuestasUsuario.forEach((res, i) => {
+            const btn = document.createElement('div');
+            btn.className = `nav-btn ${i === indiceActual ? 'activa' : ''} ${res.contestada ? 'contestada' : ''}`;
+            btn.textContent = i + 1;
+            btn.onclick = () => { indiceActual = i; cargarEjercicio(); };
+            nav.appendChild(btn);
+        });
+    }
+
+    function cambiarEjercicio(delta) { indiceActual += delta; cargarEjercicio(); }
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev, tipo) { ev.dataTransfer.setData("tipoAccion", tipo); }
+
+    function drop(ev) {
+        ev.preventDefault();
+        const tipo = ev.dataTransfer.getData("tipoAccion");
+        if(tipo === 'nuevo_rojo') respuestasUsuario[indiceActual].rojos++;
+        if(tipo === 'nuevo_blanco') respuestasUsuario[indiceActual].blancos++;
+        respuestasUsuario[indiceActual].contestada = true;
+        actualizarTodo();
+    }
+
+    function removeBlock(ev) {
+        ev.preventDefault();
+        const tipo = ev.dataTransfer.getData("tipoAccion");
+        if(tipo === 'existente_rojo') respuestasUsuario[indiceActual].rojos--;
+        else if (tipo === 'existente_blanco') respuestasUsuario[indiceActual].blancos--;
+        if(respuestasUsuario[indiceActual].rojos === 0 && respuestasUsuario[indiceActual].blancos === 0) respuestasUsuario[indiceActual].contestada = false;
+        actualizarTodo();
+    }
+
+    function actualizarTodo() {
+        dibujarBloques(respuestasUsuario[indiceActual].rojos, respuestasUsuario[indiceActual].blancos);
+        dibujarNavSuperior();
+    }
+
+    function dibujarBloques(r, b) {
+        const zona = document.getElementById('zona-arrastre');
+        zona.innerHTML = '';
+        for(let i=0; i<r; i++) {
+            const d = document.createElement('div'); d.className = 'block rojo'; d.draggable = true;
+            d.ondragstart = (e) => drag(e, 'existente_rojo'); zona.appendChild(d);
+        }
+        for(let i=0; i<b; i++) {
+            const d = document.createElement('div'); d.className = 'block blanco'; d.draggable = true;
+            d.ondragstart = (e) => drag(e, 'existente_blanco'); zona.appendChild(d);
+        }
+        document.getElementById('v-num').textContent = r;
+        document.getElementById('v-den').textContent = r + b;
+    }
+
+    function finalizarEjercicio() {
+        clearInterval(timer);
+        let aciertos = 0;
+        listaEjercicios.forEach((ej, i) => {
+            const res = respuestasUsuario[i];
+            if(res.rojos === ej.num && (res.rojos + res.blancos) === ej.den) aciertos++;
+        });
+
+        const notaNum = (aciertos / listaEjercicios.length) * 10;
+        const notaStr = notaNum.toFixed(2).replace('.', ',');
+        const resObj = { fecha: new Date().toLocaleString(), aciertos, total: listaEjercicios.length, nota: notaStr, segundos };
+
+        // Guardar en Historial
+        let h = JSON.parse(localStorage.getItem('hist_frac') || '[]');
+        h.push(resObj);
+        localStorage.setItem('hist_frac', JSON.stringify(h));
+
+        if(aciertos === listaEjercicios.length) {
+            let t = JSON.parse(localStorage.getItem('trofeos_frac') || '[]');
+            t.push(resObj);
+            localStorage.setItem('trofeos_frac', JSON.stringify(t));
+            document.getElementById('fireworks').style.display = 'block';
+            setTimeout(() => { document.getElementById('fireworks').style.display = 'none'; }, 5000);
+        }
+        
+        document.getElementById('pantalla-ejercicio').style.display = 'none';
+        document.getElementById('pantalla-resultados').style.display = 'block';
+        document.getElementById('feedback').innerHTML = `<h1>Nota: ${notaStr}</h1><p>Aciertos: ${aciertos} de ${listaEjercicios.length}</p>`;
+    }
+
+    function verHistorial() {
+        const h = JSON.parse(localStorage.getItem('hist_frac') || '[]');
+        let t = `<table><tr><th>Fecha</th><th>A/T</th><th>Nota</th><th>Borrar</th></tr>`;
+        h.reverse().forEach((r, i) => {
+            t += `<tr><td>${r.fecha}</td><td>${r.aciertos}/${r.total}</td><td>${r.nota}</td><td class="btn-del" onclick="borrarLinea(${h.length-1-i})">🗑️</td></tr>`;
+        });
+        document.getElementById('tabla-historial').innerHTML = t + '</table>';
+        document.getElementById('menu-principal').style.display = 'none';
+        document.getElementById('pantalla-historial').style.display = 'block';
+    }
+
+    function borrarLinea(idx) {
+        if(prompt("Clave:") === CLAVE_MAESTRA) {
+            let h = JSON.parse(localStorage.getItem('hist_frac') || '[]');
+            h.splice(idx, 1);
+            localStorage.setItem('hist_frac', JSON.stringify(h));
+            verHistorial();
+        }
+    }
+
+    function verTrofeos() {
+        const t = JSON.parse(localStorage.getItem('trofeos_frac') || '[]');
+        const l = document.getElementById('lista-trofeos');
+        l.innerHTML = t.length ? '' : '<p>¡Gana un 10 para tu primer trofeo!</p>';
+        t.forEach(r => { l.innerHTML += `<div class="trophy-card"><span class="cup-icon">🏆</span><b>PLENO</b><br><small>${r.fecha}</small></div>`; });
+        document.getElementById('menu-principal').style.display = 'none';
+        document.getElementById('pantalla-trofeos').style.display = 'block';
+    }
+</script>
+</body>
+</html>

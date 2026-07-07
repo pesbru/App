@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor y Redimensionador PNG a 150x150</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .panel {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        h2 { color: #1a73e8; margin-top: 0; }
+        
+        /* Zona de arrastre de archivos */
+        #drop-zone {
+            border: 3px dashed #1a73e8;
+            padding: 40px 20px;
+            border-radius: 8px;
+            background-color: #e8f0fe;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s;
+            margin: 20px 0;
+        }
+        #drop-zone.hover {
+            background-color: #d2e3fc;
+            border-color: #1557b0;
+        }
+        #drop-zone p {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #1a73e8;
+            font-weight: bold;
+        }
+        
+        #estado {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #5f6368;
+        }
+        .contador { color: #1e8e3e; font-size: 1.2rem; }
+    </style>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<div class="panel">
+    <h2>Redimensionador Express PNG (150x150)</h2>
+    <p style="color:#666; font-size:0.9rem;">Las imágenes se procesarán localmente en tu memoria y se empaquetarán en un .zip manteniendo su nombre.</p>
+    
+    <div id="drop-zone">
+        <p>Arrastra aquí tus imágenes PNG o haz clic para seleccionar</p>
+        <input type="file" id="file-input" multiple accept="image/png" style="display: none;">
+    </div>
+    
+    <div id="estado">Listo para recibir archivos.</div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const estado = document.getElementById('estado');
+
+    // Desparasitar eventos del navegador para evitar que abra la imagen en la pestaña
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+    });
+
+    // Efecto visual al pasar los archivos por encima
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.add('hover'), false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove('hover'), false);
+    });
+
+    // Capturar la soltada de archivos
+    dropZone.addEventListener('drop', e => {
+        procesarArchivos(e.dataTransfer.files);
+    });
+
+    // Permitir también hacer clic para abrir el explorador de archivos
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => procesarArchivos(fileInput.files));
+
+    async function procesarArchivos(archivos) {
+        // Filtrar para asegurarnos de que solo entren archivos PNG
+        const pngs = Array.from(archivos).filter(f => f.type === "image/png" || f.name.toLowerCase().endsWith('.png'));
+        
+        if (pngs.length === 0) {
+            estado.innerHTML = "<span style='color:red;'>⚠️ No se han detectado archivos PNG válidos.</span>";
+            return;
+        }
+
+        estado.innerHTML = `Procesando... <span class="contador">0/${pngs.length}</span>`;
+        
+        const zip = new JSZip();
+        let procesados = 0;
+
+        // Crear un elemento canvas oculto en memoria para hacer la transformación física
+        const canvas = document.createElement('canvas');
+        canvas.width = 150;
+        canvas.height = 150;
+        const ctx = canvas.getContext('2d');
+
+        for (const archivo of pngs) {
+            try {
+                const imgDataUrl = await leerArchivoComoDataURL(archivo);
+                const img = await cargarImagenDOM(imgDataUrl);
+
+                // Limpiar el lienzo y pintar la imagen forzando la escala a 200x200
+                ctx.clearRect(0, 0, 150, 150);
+                ctx.drawImage(img, 0, 0, 150, 150);
+
+                // Extraer el binario convertido en formato PNG bruto
+                const blobImagen = await encolarCanvasBlob(canvas);
+                
+                // Meterlo al ZIP con su nombre de archivo original exacto
+                zip.file(archivo.name, blobImagen);
+                
+                procesados++;
+                estado.innerHTML = `Procesando... <span class="contador">${procesados}/${pngs.length}</span>`;
+            } catch (err) {
+                console.error("Error procesando: " + archivo.name, err);
+            }
+        }
+
+        estado.innerHTML = "Generando archivo comprimido .ZIP...";
+        
+        // Generar el archivo final comprimido
+        const contenidoZip = await zip.generateAsync({ type: "blob" });
+        
+        // Forzar la descarga en el navegador de manera automática
+        const enlaceDescarga = document.createElement('a');
+        enlaceDescarga.href = URL.createObjectURL(contenidoZip);
+        enlaceDescarga.download = "transformadas.zip";
+        document.body.appendChild(enlaceDescarga);
+        enlaceDescarga.click();
+        document.body.removeChild(enlaceDescarga);
+
+        estado.innerHTML = `✨ ¡Hecho! Se han descargado ${procesados} imágenes en <b>transformadas.zip</b>`;
+    }
+
+    // Funciones auxiliares asíncronas para controlar el flujo de carga
+    function leerArchivoComoDataURL(file) {
+        return new Promise((resolve) => {
+            const lector = new FileReader();
+            lector.onload = e => resolve(e.target.result);
+            lector.readAsDataURL(file);
+        });
+    }
+
+    function cargarImagenDOM(src) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.src = src;
+        });
+    }
+
+    function encolarCanvasBlob(c) {
+        return new Promise((resolve) => {
+            c.toBlob(blob => resolve(blob), 'image/png');
+        });
+    }
+</script>
+
+</body>
+</html>

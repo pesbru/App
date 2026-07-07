@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulario Visual - Idiomas</title>
+    <style>
+        :root {
+            --azul-google: #1a73e8;
+            --rojo-error: #d93025;
+            --verde-exito: #1e8e3e;
+            --gris-suave: #f1f3f4;
+            --marron-obs: #5d4037;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #fafafa; color: #3c4043; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); text-align: center; }
+        
+        /* Fuegos Artificiales - Z-index alto para asegurar visibilidad */
+        #fireworks { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; display: none; z-index: 9999; 
+            background: rgba(0,0,0,0.1) url('https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJtZ3R6bm94bm94bm94bm94bm94bm94bm94bm94bm94bm94bm94JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26tOZ42Mg6pbTUPHW/giphy.gif') center center no-repeat; 
+            background-size: cover; 
+        }
+
+        .contenedor-imagen {
+            width: 100%;
+            height: 30vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .imagen-pregunta {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        #pantalla-examen, #pantalla-resultados { display: none; }
+        .setup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; text-align: left; }
+        .full-width { grid-column: 1 / -1; }
+        select, button { padding: 12px; border-radius: 4px; border: 1px solid #dadce0; font-size: 1rem; }
+        
+        .btn-main { background: var(--azul-google); color: white; font-weight: bold; border: none; cursor: pointer; }
+        .btn-secondary { background: #e8f0fe; color: var(--azul-google); border: none; cursor: pointer; }
+        .btn-danger { background: #feeae6; color: var(--rojo-error); border: none; cursor: pointer; }
+
+        .reloj-arriba { position: fixed; top: 10px; right: 20px; font-weight: bold; background: #333; color: white; padding: 8px 18px; border-radius: 20px; z-index: 100; }
+        .reloj-abajo { position: fixed; bottom: 10px; right: 20px; font-weight: bold; background: var(--rojo-error); color: white; padding: 8px 18px; border-radius: 20px; z-index: 100; }
+        
+        .mapa-preguntas { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; justify-content: center; }
+        .item-mapa { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: var(--gris-suave); border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
+        .item-mapa.respondida { background: var(--azul-google); color: white; }
+        .item-mapa.actual { border: 2px solid var(--azul-google); font-weight: bold; }
+
+        .opcion { display: block; padding: 15px; margin: 10px 0; border: 2px solid var(--gris-suave); border-radius: 8px; cursor: pointer; text-align: left; }
+        .opcion.seleccionada { border-color: var(--azul-google); background: #e8f0fe; font-weight: bold; }
+        
+        .txt-pista { color: var(--rojo-error); font-weight: bold; margin-top: 15px; display: block; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+        th, td { border: 1px solid #dadce0; padding: 10px 5px; text-align: center; }
+        th { background: #f8f9fa; }
+        .verde { color: var(--verde-exito); font-weight: bold; }
+        .rojo { color: var(--rojo-error); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="fireworks"></div>
+
+<div class="container" id="menu-principal">
+    <h2 style="color: var(--azul-google);">Vocabulario en Idiomas</h2>
+    <div class="setup-section">
+        <label>Usuario:</label>
+        <select id="sel-usuario">
+            <option value="Miguel">Miguel</option>
+            <option value="Usuario 1">Usuario 1</option>
+        </select>
+        
+        <label>Batería:</label><select id="sel-bateria"></select>
+        <label>Preguntas:</label><select id="sel-num-preguntas"></select>
+        <label>Tiempo (seg):</label><select id="sel-tiempo"></select>
+        
+        <button class="btn-main full-width" onclick="comenzarExamen()">COMENZAR</button>
+        <button class="btn-secondary" onclick="verHistorial()">HISTORIAL</button>
+        <button class="btn-secondary" onclick="verTrofeos()">TROFEOS</button>
+        <button class="btn-danger full-width" onclick="borrarDatosUsuario()">BORRAR MI HISTORIAL</button>
+    </div>
+</div>
+
+<div class="container" id="pantalla-examen">
+    <div class="reloj-arriba" id="tiempo-transcurrido">00:00</div>
+    <div class="mapa-preguntas" id="mapa"></div>
+    
+    <div id="zona-pregunta">
+        <div class="contenedor-imagen">
+            <img id="img-vocabulario" class="imagen-pregunta" src="" alt="Cargando imagen...">
+        </div>
+        <div id="opciones-contenedor"></div>
+        <div id="pista-contenedor"></div>
+    </div>
+
+    <div style="margin-top:20px; display: flex; justify-content: space-between;">
+        <button class="btn-secondary" onclick="anteriorPregunta()">Anterior</button>
+        <button class="btn-secondary" onclick="siguientePregunta()">Siguiente</button>
+    </div>
+    
+    <div style="margin-top:15px; display: flex; gap:10px;">
+        <button class="btn-main" onclick="finalizarExamen('finalizado')" style="flex:2;">CORREGIR</button>
+        <button class="btn-danger" onclick="retirarExamen()" style="flex:1;">Retirar</button>
+    </div>
+    <div class="reloj-abajo" id="tiempo-restante">00:00</div>
+</div>
+
+<div class="container" id="pantalla-resultados">
+    <div id="resumen-nota"></div>
+    <div id="lista-correccion"></div>
+    <button class="btn-main full-width" onclick="location.reload()">INICIO</button>
+</div>
+
+<script src="auxiliares/bateria1.js"></script>
+<script src="auxiliares/bateria2.js"></script>
+<script src="auxiliares/bateria3.js"></script>
+<script src="auxiliares/bateria4.js"></script>
+<script src="auxiliares/bateria5.js"></script>
+
+<script>
+    let examenActual = [];
+    let respuestasUsuario = [];
+    let indiceActual = 0;
+    let timerTranscurrido, timerRestante;
+    let segTranscurridos = 0, segRestantes = 0;
+    let rachaActual = 0;
+
+    const nombresBaterias = {
+        "bateria1": "Inglés",
+        "bateria2": "Francés",
+        "bateria3": "La hora en español",
+        "bateria4": "La hora en inglés",
+        "bateria5": "La hora en francés"
+    };
+
+    window.onload = () => {
+        const selB = document.getElementById('sel-bateria');
+        for(let i=1; i<=10; i++) {
+            const id = `bateria${i}`;
+            selB.innerHTML += `<option value="${id}">${nombresBaterias[id] || `Batería ${i}`}</option>`;
+        }
+        
+        const selN = document.getElementById('sel-num-preguntas');
+        for(let i=15; i<=100; i+=10) selN.innerHTML += `<option value="${i}">${i} preguntas</option>`;
+
+        const selT = document.getElementById('sel-tiempo');
+        for(let i=35; i<=120; i+=10) selT.innerHTML += `<option value="${i}">${i} seg</option>`;
+
+        const s = JSON.parse(localStorage.getItem('sesion_activa'));
+        if(s) {
+            document.getElementById('sel-usuario').value = s.usuario;
+            document.getElementById('sel-bateria').value = s.bateriaID;
+            examenActual = s.examen;
+            respuestasUsuario = s.respuestas;
+            segTranscurridos = s.segTranscurridos;
+            segRestantes = s.segRestantes;
+            rachaActual = s.racha;
+            indiceActual = s.indice;
+            document.getElementById('menu-principal').style.display = 'none';
+            document.getElementById('pantalla-examen').style.display = 'block';
+            iniciarRelojes();
+            dibujarPregunta();
+            dibujarMapa();
+        }
+    };
+
+    function guardarTemporal() {
+        localStorage.setItem('sesion_activa', JSON.stringify({
+            usuario: document.getElementById('sel-usuario').value,
+            bateriaID: document.getElementById('sel-bateria').value,
+            examen: examenActual,
+            respuestas: respuestasUsuario,
+            segTranscurridos, segRestantes, rachaActual, indiceActual
+        }));
+    }
+
+
+
+
+
+
+function comenzarExamen() {
+    const bID = document.getElementById('sel-bateria').value;
+    if (!window[bID]) return alert("Archivo no encontrado");
+
+    let mazoOriginal = [...window[bID]]; // Copia de tus 500 preguntas
+    let numSolicitado = parseInt(document.getElementById('sel-num-preguntas').value);
+    
+    examenActual = [];
+
+    // Solo hacemos el bucle las veces necesarias (ej. 20 veces)
+    for (let i = 0; i < numSolicitado; i++) {
+        // 1. Generamos un índice aleatorio entre 0 y el total que queda
+        let indiceAleatorio = Math.floor(Math.random() * mazoOriginal.length);
+        
+        // 2. EXTRAEMOS la pregunta. 
+        // .splice(indice, 1) quita el elemento del mazo y lo devuelve.
+        let preguntaSorteada = mazoOriginal.splice(indiceAleatorio, 1)[0];
+        
+        // 3. La añadimos al examen
+        examenActual.push(preguntaSorteada);
+    }
+
+    // A partir de aquí, el resto de tu lógica
+    respuestasUsuario = new Array(examenActual.length).fill(null);
+    segRestantes = examenActual.length * parseInt(document.getElementById('sel-tiempo').value);
+    segTranscurridos = 0; indiceActual = 0; rachaActual = 0;
+
+    document.getElementById('menu-principal').style.display = 'none';
+    document.getElementById('pantalla-examen').style.display = 'block';
+    
+    guardarTemporal();
+    iniciarRelojes();
+    dibujarPregunta();
+    dibujarMapa();
+}
+
+
+
+
+
+
+
+    function dibujarPregunta() {
+        const p = examenActual[indiceActual];
+        const imgEl = document.getElementById('img-vocabulario');
+        imgEl.src = `Imagenes/${p.enunciado}`; 
+        
+        const cont = document.getElementById('opciones-contenedor');
+        cont.innerHTML = '';
+        p.opciones.forEach((op, i) => {
+            const div = document.createElement('div');
+            div.className = 'opcion' + (respuestasUsuario[indiceActual] === i ? ' seleccionada' : '');
+            div.textContent = `${String.fromCharCode(65 + i)}) ${op}`;
+            div.onclick = () => {
+                if(i === p.correcta) {
+                    rachaActual++;
+                    if(rachaActual === 15) lanzarEfectosTrofeo();
+                } else {
+                    rachaActual = 0;
+                }
+                
+                respuestasUsuario[indiceActual] = i;
+                guardarTemporal();
+                dibujarPregunta();
+                dibujarMapa();
+            };
+            cont.appendChild(div);
+        });
+        document.getElementById('pista-contenedor').innerHTML = p.observaciones ? `<span class="txt-pista">Pista: ${p.observaciones}</span>` : '';
+    }
+
+    function lanzarEfectosTrofeo() {
+        let t = JSON.parse(localStorage.getItem('trofeos') || '[]');
+        t.push({ 
+            usuario: document.getElementById('sel-usuario').value, 
+            fecha: new Date().toLocaleString().replace(',', ''), 
+            racha: 15, 
+            bateria: document.getElementById('sel-bateria').options[document.getElementById('sel-bateria').selectedIndex].text 
+        });
+        localStorage.setItem('trofeos', JSON.stringify(t));
+
+        const fw = document.getElementById('fireworks');
+        fw.style.display = 'block';
+        setTimeout(() => { fw.style.display = 'none'; }, 5000);
+    }
+
+    function finalizarExamen(estado) {
+        clearInterval(timerTranscurrido); clearInterval(timerRestante);
+        let a = 0, e = 0, b = 0;
+        examenActual.forEach((p, i) => {
+            if(respuestasUsuario[i] === null) b++;
+            else if(respuestasUsuario[i] === p.correcta) a++;
+            else e++;
+        });
+        const res = {
+            usuario: document.getElementById('sel-usuario').value,
+            bateria: document.getElementById('sel-bateria').options[document.getElementById('sel-bateria').selectedIndex].text,
+            fecha: new Date().toLocaleString().replace(',', ''),
+            aciertos: a, errores: e, blancos: b, totales: examenActual.length,
+            nota: ((a - (e/3)) / examenActual.length * 10).toFixed(2).replace('.', ',')
+        };
+        let h = JSON.parse(localStorage.getItem('historial') || '[]');
+        h.push(res);
+        localStorage.setItem('historial', JSON.stringify(h));
+        localStorage.removeItem('sesion_activa');
+        mostrarResultados(res);
+    }
+
+    function iniciarRelojes() {
+        timerTranscurrido = setInterval(() => { segTranscurridos++; document.getElementById('tiempo-transcurrido').textContent = formatearTiempo(segTranscurridos); guardarTemporal(); }, 1000);
+        timerRestante = setInterval(() => { segRestantes--; document.getElementById('tiempo-restante').textContent = formatearTiempo(segRestantes); if(segRestantes <= 0) finalizarExamen('agotado'); }, 1000);
+    }
+
+    function dibujarMapa() {
+        const mapa = document.getElementById('mapa');
+        mapa.innerHTML = '';
+        examenActual.forEach((_, i) => {
+            const div = document.createElement('div');
+            div.className = 'item-mapa' + (respuestasUsuario[i] !== null ? ' respondida' : '') + (indiceActual === i ? ' actual' : '');
+            div.textContent = i + 1;
+            div.onclick = () => { indiceActual = i; guardarTemporal(); dibujarPregunta(); dibujarMapa(); };
+            mapa.appendChild(div);
+        });
+    }
+
+    function anteriorPregunta() { if(indiceActual > 0) { indiceActual--; guardarTemporal(); dibujarPregunta(); dibujarMapa(); } }
+    function siguientePregunta() { if(indiceActual < examenActual.length - 1) { indiceActual++; guardarTemporal(); dibujarPregunta(); dibujarMapa(); } }
+    function retirarExamen() { if(confirm("¿Retirarse?")) finalizarExamen('retirado'); }
+
+    function mostrarResultados(res) {
+        document.getElementById('pantalla-examen').style.display = 'none';
+        document.getElementById('pantalla-resultados').style.display = 'block';
+        document.getElementById('resumen-nota').innerHTML = `<h1>Nota: ${res.nota}</h1><p>A: ${res.aciertos} | E: ${res.errores} | B: ${res.blancos}</p>`;
+        let html = '';
+        examenActual.forEach((p, i) => {
+            const u = respuestasUsuario[i];
+            html += `<div style="border-bottom:1px solid #eee; padding:15px; text-align:left;">
+                <p><b>${i+1}. <img src="Imagenes/${p.enunciado}" style="height:50px; vertical-align:middle; border-radius:4px;"></b></p>
+                <p class="${u === p.correcta ? 'verde' : 'rojo'}">Tu respuesta: ${u!==null?p.opciones[u]:'En blanco'}</p>
+                ${u !== p.correcta ? `<p>Correcta: <b>${p.opciones[p.correcta]}</b></p>` : ''}
+            </div>`;
+        });
+        document.getElementById('lista-correccion').innerHTML = html;
+    }
+
+    function verHistorial() {
+        const u = document.getElementById('sel-usuario').value;
+        let h = JSON.parse(localStorage.getItem('historial') || '[]').filter(x => x.usuario === u);
+        let table = `<h2>Historial de ${u}</h2>
+            <table>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Nota</th>
+                    <th>A</th>
+                    <th>E</th>
+                    <th>B</th>
+                    <th>Batería</th>
+                </tr>`;
+        h.reverse().forEach(x => {
+            table += `<tr>
+                <td>${x.fecha}</td>
+                <td><b>${x.nota}</b></td>
+                <td class="verde">${x.aciertos}</td>
+                <td class="rojo">${x.errores}</td>
+                <td>${x.blancos}</td>
+                <td>${x.bateria}</td>
+            </tr>`;
+        });
+        document.body.innerHTML = `<div class="container">${table}</table><button class="btn-main full-width" onclick="location.reload()" style="margin-top:20px;">VOLVER</button></div>`;
+    }
+
+    function verTrofeos() {
+        const u = document.getElementById('sel-usuario').value;
+        let t = JSON.parse(localStorage.getItem('trofeos') || '[]').filter(x => x.usuario === u);
+        let html = `<h2>Sala de Trofeos de ${u} 🏆</h2>`;
+        t.reverse().forEach(x => html += `<div style="border:1px solid gold; margin:10px; padding:15px; border-radius:8px; background:#fffdf0;"><b>Racha: ${x.racha} aciertos</b><br><small>${x.bateria} - ${x.fecha}</small></div>`);
+        document.body.innerHTML = `<div class="container" style="text-align:center;">${html||'<p>Sin trofeos aún.</p>'}<button class="btn-main full-width" onclick="location.reload()" style="margin-top:20px;">VOLVER</button></div>`;
+    }
+
+    function borrarDatosUsuario() {
+        const u = document.getElementById('sel-usuario').value;
+        if(confirm(`¿Borrar historial de ${u}?`)) {
+            localStorage.setItem('historial', JSON.stringify(JSON.parse(localStorage.getItem('historial')||'[]').filter(x => x.usuario !== u)));
+            localStorage.setItem('trofeos', JSON.stringify(JSON.parse(localStorage.getItem('trofeos')||'[]').filter(x => x.usuario !== u)));
+            location.reload();
+        }
+    }
+
+    function formatearTiempo(s) {
+        const m = Math.floor(Math.max(0,s) / 60);
+        const seg = Math.max(0,s) % 60;
+        return `${m.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;
+    }
+</script>
+</body>
+</html>

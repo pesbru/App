@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Educativa Matriz</title>
+    <style>
+        /* --- VARIABLES DE COLOR --- */
+        :root {
+            --verde-fondo-menu: #E8F5E9;
+            --verde-hover: #C8E6C9;
+            --verde-texto: #2E7D32;
+            --blanco: #FFFFFF;
+            --gris-borde: #D1D8D1;
+        }
+
+        /* --- RESET Y ESTRUCTURA BASE --- */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .contenedor-global {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- MENÚ LATERAL --- */
+        #sidebar {
+            width: calc(100% / 7);
+            min-width: 220px; /* Ajustado ligeramente para acomodar 3 niveles */
+            background-color: var(--verde-fondo-menu);
+            border-right: 1px solid var(--gris-borde);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .logo-container img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: contain;
+            display: block;
+            background-color: var(--blanco);
+            border-radius: 4px;
+        }
+
+        /* --- NAVEGACIÓN Y SUBMENÚS --- */
+        nav {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Enlaces principales y botones de menú */
+        .menu-item, .submenu-btn {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--verde-texto);
+            font-size: 0.95em;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            transition: background 0.2s;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            box-sizing: border-box;
+        }
+
+        .menu-item:hover, .submenu-btn:hover {
+            background-color: var(--verde-hover);
+        }
+
+        /* Estilo para elementos deshabilitados/por definir */
+        .item-desactivado {
+            color: #999 !important;
+        }
+
+        /* Contenedores de submenús (ocultos por defecto) */
+        .submenu-container {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* CONTROL DE INDENTACIÓN SEGÚN EL NIVEL */
+        .nivel-2 .menu-item, .nivel-2 .submenu-btn {
+            padding-left: 30px; 
+            font-size: 0.88em;
+        }
+        
+        .nivel-3 .menu-item {
+            padding-left: 45px;
+            font-size: 0.83em;
+            border-bottom: none;
+        }
+
+        /* Indicador dinámico de despliegue */
+        .has-children::after {
+            content: ' ▼';
+            font-size: 0.7em;
+            float: right;
+            transition: transform 0.2s;
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        #main-content {
+            flex-grow: 1;
+            height: 100%;
+            background-color: var(--blanco);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-global">
+        
+        <aside id="sidebar">
+            <div class="logo-container">
+                <img src="Configuracion/logo.png" alt="Logo">
+            </div>
+
+            <nav>
+                <!-- El árbol de menús se inyectará aquí de manera automática -->
+                <ul id="menu-raiz"></ul>
+            </nav>
+        </aside>
+
+        <main id="main-content">
+            <iframe name="visor" src="about:blank"></iframe>
+        </main>
+
+    </div>
+
+    <!-- Carga de la configuración externa de rutas y estructura -->
+    <script src="Configuracion/config-plataforma.js"></script>
+
+    <script>
+        // Función para alternar la visibilidad de los submenús
+        function toggleSubmenu(event, boton) {
+            // Evitamos cualquier comportamiento extraño de propagación
+            event.stopPropagation();
+            
+            // El contenedor ul es el hermano siguiente directo del botón
+            const submenu = boton.nextElementSibling;
+            
+            if (submenu && submenu.classList.contains('submenu-container')) {
+                if (submenu.style.display === "block") {
+                    submenu.style.display = "none";
+                } else {
+                    submenu.style.display = "block";
+                }
+            }
+        }
+
+        // Función recursiva e inteligente que genera el árbol HTML del menú
+        function construirMenu(items, contenedorAnfitrion, nivel = 1) {
+            items.forEach(item => {
+                const li = document.createElement('li');
+
+                // Verificamos si este nodo tiene submenús
+                if (item.submenus && item.submenus.length > 0) {
+                    const boton = document.createElement('button');
+                    boton.className = 'submenu-btn has-children';
+                    boton.textContent = item.titulo;
+                    
+                    // Asignamos el evento de clic nativo pasando el evento y el elemento
+                    boton.onclick = function(e) { toggleSubmenu(e, this); };
+                    li.appendChild(boton);
+
+                    // Creamos la sub-lista contenedora
+                    const ulSubmenu = document.createElement('ul');
+                    ulSubmenu.className = `submenu-container nivel-${nivel + 1}`;
+                    
+                    li.appendChild(ulSubmenu);
+                    contenedorAnfitrion.appendChild(li);
+
+                    // Llamada recursiva para procesar los hijos incrementando el nivel jerárquico
+                    construirMenu(item.submenus, ulSubmenu, nivel + 1);
+                } else {
+                    // Es un enlace final (hoja)
+                    const enlace = document.createElement('a');
+                    enlace.textContent = item.titulo;
+                    enlace.target = "visor";
+                    enlace.className = "menu-item";
+
+                    // Aplicamos lógica de rutas base si está definida y existe en CONFIG_RUTAS
+                    let rutaFinal = item.url;
+                    if (item.rutaBase && CONFIG_RUTAS[item.rutaBase]) {
+                        rutaFinal = CONFIG_RUTAS[item.rutaBase] + item.url;
+                    }
+                    enlace.href = rutaFinal;
+
+                    // Si el elemento está marcado como desactivado en la configuración
+                    if (item.desactivado) {
+                        enlace.classList.add('item-desactivado');
+                    }
+
+                    li.appendChild(enlace);
+                    contenedorAnfitrion.appendChild(li);
+                }
+            });
+        }
+
+        // Arrancamos la inicialización del menú cuando el documento esté completamente cargado
+        document.addEventListener("DOMContentLoaded", () => {
+            const raiz = document.getElementById('menu-raiz');
+            if (typeof MENU_DATA !== 'undefined' && raiz) {
+                construirMenu(MENU_DATA, raiz);
+            } else {
+                console.error("No se ha podido cargar el archivo de configuración o falta el nodo raíz.");
+            }
+        });
+    </script>
+
+</body>
+</html>

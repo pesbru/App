@@ -1,0 +1,1 @@
+var CLAVE_BORRADO = "Covadonga";

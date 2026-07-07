@@ -1,0 +1,61 @@
+var DATOS_BATERIA = [
+
+
+ { id: 1, enunciado: "03-10.png", opciones: ["Son las tres y diez", "Es la una y cinco", "Es la una menos veinte", "Son las once y veinticinco"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 2, enunciado: "09-30.png", opciones: ["Son las nueve y media", "Son las siete y veinte", "Son las siete y cinco", "Son las seis en punto"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 3, enunciado: "09-40.png", opciones: ["Son las diez menos veinte", "Son las cuatro y cuarto", "Son las cinco y veinte", "Son las ocho y diez"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 4, enunciado: "01-20.png", opciones: ["Es la una y veinte", "Son las doce menos diez", "Son las seis y veinticinco", "Son las ocho menos veinte"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 5, enunciado: "03-30.png", opciones: ["Son las tres y media", "Son las diez en punto", "Son las diez y veinte", "Es la una en punto"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 6, enunciado: "05-35.png", opciones: ["Son las seis menos veinticinco", "Son las once menos cuarto", "Son las siete menos cuarto", "Son las doce menos veinte"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 7, enunciado: "02-10.png", opciones: ["Son las dos y diez", "Son las doce y diez", "Son las siete y media", "Son las cuatro y veinticinco"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 8, enunciado: "02-50.png", opciones: ["Son las tres menos diez", "Son las siete y veinte", "Son las siete y cinco", "Son las seis en punto"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 9, enunciado: "04-05.png", opciones: ["Son las cuatro y cinco", "Son las cuatro y cuarto", "Son las cinco y veinte", "Son las ocho y diez"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 10, enunciado: "12-55.png", opciones: ["Es la una menos cinco", "Son las doce menos diez", "Son las seis y veinticinco", "Son las ocho menos veinte"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 11, enunciado: "08-35.png", opciones: ["Son las nueve menos veinticinco", "Son las diez en punto", "Son las diez y veinte", "Es la una en punto"], correcta:  0, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 12, enunciado: "01-05.png", opciones: ["Son las diez en punto", "Son las tres y diez", "Es la una y cinco", "Son las once y veinticinco"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 13, enunciado: "07-20.png", opciones: ["Son las once menos cuarto", "Son las nueve y media", "Son las siete y veinte", "Son las seis en punto"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 14, enunciado: "04-15.png", opciones: ["Es la una y cinco", "Son las diez menos veinte", "Son las cuatro y cuarto", "Son las ocho y diez"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 15, enunciado: "11-50.png", opciones: ["Son las siete y veinte", "Es la una y veinte", "Son las doce menos diez", "Son las ocho menos veinte"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 16, enunciado: "10-00.png", opciones: ["Son las cuatro y cuarto", "Son las tres y media", "Son las diez en punto", "Es la una en punto"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 17, enunciado: "10-45.png", opciones: ["Son las doce menos diez", "Son las seis menos veinticinco", "Son las once menos cuarto", "Son las doce menos veinte"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 18, enunciado: "12-10.png", opciones: ["Son las diez en punto", "Son las dos y diez", "Son las doce y diez", "Son las cuatro y veinticinco"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 19, enunciado: "08-25.png", opciones: ["Son las once menos cuarto", "Son las tres menos diez", "Son las ocho y veinticinco", "Son las nueve y cinco"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 20, enunciado: "03-25.png", opciones: ["Son las doce y diez", "Son las cuatro y cinco", "Son las tres y veinticinco", "Son las seis y cuarto"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 21, enunciado: "01-35.png", opciones: ["Son las ocho y veinticinco", "Es la una menos cinco", "Son las dos menos veinticinco", "Son las siete menos diez"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 22, enunciado: "10-35.png", opciones: ["Son las tres y veinticinco", "Son las nueve menos veinticinco", "Son las once menos veinticinco", "Son las ocho y veinticinco"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 23, enunciado: "11-15.png", opciones: ["Son las dos menos veinticinco", "Son las doce menos diez", "Son las once y cuarto", "Son las tres y veinticinco"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 24, enunciado: "08-50.png", opciones: ["Son las once menos veinticinco", "Son las diez en punto", "Son las nueve menos diez", "Son las tres y veinticinco"], correcta:  2, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 25, enunciado: "12-40.png", opciones: ["Son las once y cuarto", "Son las cuatro y cinco", "Son las cinco y veinte", "Es la una menos veinte"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 26, enunciado: "07-05.png", opciones: ["Son las nueve menos diez", "Es la una menos cinco", "Son las seis y veinticinco", "Son las siete y cinco"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 27, enunciado: "05-20.png", opciones: ["Son las ocho y veinticinco", "Es la una menos veinte", "Son las diez y veinte", "Son las cinco y veinte"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 28, enunciado: "06-25.png", opciones: ["Son las tres y veinticinco", "Son las siete y cinco", "Son las siete menos cuarto", "Son las seis y veinticinco"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 29, enunciado: "10-20.png", opciones: ["Son las dos menos veinticinco", "Son las cinco y veinte", "Son las siete y media", "Son las diez y veinte"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 30, enunciado: "06-45.png", opciones: ["Son las once menos veinticinco", "Son las seis y veinticinco", "Son las cinco y diez", "Son las siete menos cuarto"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 31, enunciado: "07-30.png", opciones: ["Son las once y cuarto", "Son las diez y veinte", "Son las dos y cinco", "Son las siete y media"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 32, enunciado: "05-10.png", opciones: ["Son las nueve menos diez", "Son las siete menos cuarto", "Son las cinco menos cinco", "Son las cinco y diez"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 33, enunciado: "02-05.png", opciones: ["Son las ocho y veinticinco", "Son las siete y media", "Es la una y cuarto", "Son las dos y cinco"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 34, enunciado: "04-55.png", opciones: ["Son las tres y veinticinco", "Son las cinco y diez", "Son las nueve y cuarto", "Son las cinco menos cinco"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 35, enunciado: "01-15.png", opciones: ["Son las dos menos veinticinco", "Son las dos y cinco", "Son las siete menos cuarto", "Es la una y cuarto"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 36, enunciado: "09-15.png", opciones: ["Son las once menos veinticinco", "Son las siete menos cuarto", "Son las siete y media", "Son las nueve y cuarto"], correcta:  3, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 37, enunciado: "11-25.png", opciones: ["Es la una menos veinte", "Son las once y veinticinco", "Es la una y cinco", "Son las tres y diez"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 38, enunciado: "06-00.png", opciones: ["Son las siete y cinco", "Son las seis en punto", "Son las siete y veinte", "Son las nueve y media"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 39, enunciado: "08-10.png", opciones: ["Son las cinco y veinte", "Son las ocho y diez", "Son las cuatro y cuarto", "Son las diez menos veinte"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 40, enunciado: "07-40.png", opciones: ["Son las seis y veinticinco", "Son las ocho menos veinte", "Son las doce menos diez", "Es la una y veinte"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 41, enunciado: "01-00.png", opciones: ["Son las diez y veinte", "Es la una en punto", "Son las diez en punto", "Son las tres y media"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 42, enunciado: "11-40.png", opciones: ["Son las siete menos cuarto", "Son las doce menos veinte", "Son las once menos cuarto", "Son las seis menos veinticinco"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 43, enunciado: "04-25.png", opciones: ["Son las siete y media", "Son las cuatro y veinticinco", "Son las doce y diez", "Son las dos y diez"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 44, enunciado: "09-05.png", opciones: ["Son las cinco y diez", "Son las nueve y cinco", "Son las ocho y veinticinco", "Son las tres menos diez"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 45, enunciado: "06-15.png", opciones: ["Son las dos y cinco", "Son las seis y cuarto", "Son las tres y veinticinco", "Son las cuatro y cinco"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 46, enunciado: "06-50.png", opciones: ["Son las cinco menos cinco", "Son las siete menos diez", "Son las dos menos veinticinco", "Es la una menos cinco"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 47, enunciado: "02-40.png", opciones: ["Es la una y cuarto", "Son las tres menos veinte", "Son las once menos veinticinco", "Son las nueve menos veinticinco"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 48, enunciado: "03-00.png", opciones: ["Son las nueve y cuarto", "Son las tres en punto", "Son las once y cuarto", "Son las tres y diez"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 49, enunciado: "02-15.png", opciones: ["Son las dos y cinco", "Son las dos y cuarto", "Son las nueve menos diez", "Son las nueve y media"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+ { id: 50, enunciado: "05-45.png", opciones: ["Son las cinco menos cinco", "Son las seis menos cuarto", "Es la una y cinco", "Son las diez menos veinte"], correcta:  1, observaciones: "La aguja larga marca los minutos y la corta las horas" },
+
+
+
+
+
+// Puedes seguir añadiendo hasta 50 siguiendo exactamente este formato.
+ // RECUERDA: La última pregunta NO debe llevar coma después de su llave de cierre }.
+]

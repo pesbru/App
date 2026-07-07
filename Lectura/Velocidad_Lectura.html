@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenador de Lectura - Luis V18</title>
+    <style>
+        :root { --primary: #2c3e50; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 95%; max-width: 950px; text-align: center; }
+        
+        #word-display { font-size: 2.2rem; font-weight: bold; min-height: 160px; display: flex; align-items: center; justify-content: center; color: #333; margin: 20px 0; border: 2px solid #eee; background: #fafafa; border-radius: 10px; padding: 20px; line-height: 1.3; }
+        
+        select, button { padding: 12px; margin: 5px; border-radius: 6px; border: 1px solid #ddd; font-size: 1rem; }
+        .btn-start { background: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold; width: 45%; }
+        .btn-history-view { background: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; width: 45%; }
+        .btn-delete { background: #e74c3c; color: white; border: none; cursor: pointer; font-weight: bold; width: 92%; margin-top: 10px; }
+        
+        .eval-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .btn-success { background: #2ecc71; color: white; border: none; cursor: pointer; flex: 1; font-weight: bold; }
+        .btn-warning { background: #f1c40f; color: white; border: none; cursor: pointer; flex: 1; font-weight: bold; }
+        .btn-error { background: #e74c3c; color: white; border: none; cursor: pointer; flex: 1; font-weight: bold; }
+        
+        .control-row { display: flex; justify-content: center; }
+        .btn-finish { background: #95a5a6; color: white; border: none; cursor: pointer; width: 32%; font-weight: bold; }
+        
+        .controls-row { margin-bottom: 15px; text-align: left; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #666; }
+        .hidden { display: none !important; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 0.75rem; }
+        th { background: #f8f9fa; }
+
+        .stats-footer { position: fixed; bottom: 10px; right: 10px; background: #222; color: #0f0; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 0.8rem; z-index: 100; }
+    </style>
+</head>
+<body>
+
+    <div id="setup-screen" class="container">
+        <h2 style="color: var(--primary)">Entrenador de Lectura V18</h2>
+        <p id="user-status" style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Cargando estado...</p>
+        <div class="controls-row">
+            <label>Usuario:</label>
+            <select id="user-select" style="width: 100%;" onchange="updateUserStatus()">
+                <option value="Miguel">Miguel</option>
+                <option value="Usuario 2"> Usuario 2</option>
+                <option value="Usuario 3"> Usuario 3</option>
+                <option value="Usuario 4"> Usuario 4</option>
+                <option value="Usuario 5"> Usuario 5</option>
+            </select>
+        </div>
+        <div class="controls-row">
+            <label>Velocidad (seg/letra):</label>
+            <select id="speed-select" style="width: 100%;">
+                <option value="0.05">0.05</option>
+                <option value="0.08">0.08</option>
+                <option value="0.10" selected>0.10</option>
+                <option value="0.12">0.12</option>
+                <option value="0.15">0.15</option>
+            </select>
+        </div>
+        <div style="margin-top: 20px;">
+            <button class="btn-start" onclick="startApp()">CONTINUAR LECTURA</button>
+            <button class="btn-history-view" onclick="showHistory()">HISTORIAL</button>
+            <br>
+            <button class="btn-delete" onclick="clearUserHistory()">BORRAR HISTORIAL USUARIO</button>
+        </div>
+    </div>
+
+    <div id="reading-screen" class="container hidden">
+        <div id="word-display"></div>
+        
+        <div class="eval-row">
+            <button class="btn-success" onclick="processSentence('hit')">Acierto</button>
+            <button class="btn-warning" onclick="processSentence('partial')">Incompleto</button>
+            <button class="btn-error" onclick="processSentence('error')">Error</button>
+        </div>
+        <div class="control-row">
+            <button class="btn-finish" onclick="finishSession()">Finalizar</button>
+        </div>
+    </div>
+
+    <div id="history-screen" class="container hidden" style="max-width: 1050px;">
+        <h2 style="color: var(--primary)">Historial Detallado</h2>
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #eee;">
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Usuario</th>
+                        <th>Vel.</th>
+                        <th>Tiempo</th>
+                        <th>Orac.</th>
+                        <th>Lets.</th>
+                        <th>Aci.</th>
+                        <th>Inc.</th>
+                        <th>Err.</th>
+                        <th>% Éxito</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <button class="btn-start" style="margin-top: 20px; width: 100%;" onclick="backToStart()">Volver al Inicio</button>
+    </div>
+
+    <div id="live-panel" class="stats-footer hidden">
+        TIEMPO: <span id="live-time">0.0</span>s | ORACIONES: <span id="live-count">0</span>
+    </div>
+
+
+    <script>
+        const fullText = `Capítulo 1: Los Cambios en el Colegio 
+El colegio San Martín era un lugar tranquilo, o al menos lo había sido hasta ese curso. Los pasillos largos, los extensos ventanales y el sonido de los recreos creaban una sensación de normalidad. Sin embargo, en las últimas semanas, algo fuera de lo común estaba pasando. 
+Juan, Ana, Pablo, Lucía y Marcos lo notaron desde el principio. Primero, un profesor dejó el colegio sin decir adiós. Era el profesor de matemáticas, el señor Varela, y aunque a ninguno de ellos le agradaban los números, extrañaban su presencia. Después, otros profesores siguieron el mismo camino y empezaron a irse también del colegio. Mucho se rumoreaba entre al alumnado, pero nadie sabía con certeza por qué. En lo que todos estaban de acuerdo era en que las clases se suspendían con frecuencia y de un día para otro les cambiaban los horarios de clase. La confusión crecía tan rápidamente como los chismes al respecto. 
+Un día, durante el recreo, el grupo de amigos se reunió en su rincón habitual, detrás del pabellón de secundaria, un lugar poco concurrido y donde no solía haber mucha vigilancia de los profesores. El patio estaba más bullicioso de lo normal debido al inicio de unas obras en el pabellón. Desde hacía unos días, camiones y máquinas iban y venían por el patio, sin que se apreciara ningún avance en las obras. 
+
+—¿No os parece raro? —dijo Ana, mientras miraba hacia las obras — Derribar el pabellón de secundaria en mitad del curso… ¿Para qué? 
+—Eso es lo que me pregunto —contestó Juan, que era el más atento del grupo. — Y justo ahora que varios profesores se han ido ¡Es tan extraño! 
+Marcos, que solía ser más reservado, asintió con la cabeza. También él había percibido algo fuera de lo común, pero no quería comentar nada sin estar completamente seguro de ello. 
+—Mi madre opina que se debe a la construcción de algo nuevo, pero no estoy segura... —dijo Lucía, con cierta duda— ¡Como cada vez dicen una cosa diferente! 
+Pablo, el integrante más divertido del grupo, trató de restarle seriedad. Sin embargo, en el interior, él también experimentaba la incomodidad presente en el ambiente. 
+—Tal vez sea simplemente una enorme piscina para nosotros. —Pablo se rio, pero nadie más secundó. 
+—No se trata únicamente de eso —expresó Ana en un tono de voz más suave en esta ocasión—. ¿Habéis notado que el conserje siempre está merodeando, incluso durante la noche? 
+El conserje, conocido como el señor Ramiro, siempre había sido una figura algo peculiar. Después de años en el colegio, en los últimos días se notaba que estaba más nervioso de lo normal. Le habían observado llevando a cabo patrullas inusuales, y en ocasiones susurraba palabras mientras cerraba las puertas. 
+—Y el maestro de música… —añadió Juan, recordando algo. — Hace poco lo vi entrar al edificio justo antes de que comenzaran a demolerlo. Estaba solo, no sé qué hacía ahí. 
+—Es que todo es raro —insistió Ana, ajustando su coleta con energía. — No sé si vosotros también, pero yo pienso descubrir qué sucede. 
+—¿Tú sola? — Comentó Pablo, con una sonrisa socarrona. 
+—Claro que sí. No necesito ayuda. —Ana se incorporó y con cierta solemnidad declaró. — Esto es un misterio, y lo voy a resolver. Los demás la miraron sorprendidos, pero en el fondo, todos compartían la misma curiosidad, aunque no todos con el mismo arrojo. 
+Algo en el colegio estaba cambiando, y aunque no sabían qué, sentían que tenían que descubrirlo. Cuando sonó el timbre que anunciaba el fin del recreo, los cinco amigos se miraron en silencio. Ninguno dijo nada, pero cada uno, en su interior, tomó una decisión: investigarían por su cuenta. Sin decírselo a los demás, tratarían de resolver el misterio, como si fuera una competencia secreta entre ellos. 
+Durante el camino de vuelta a clase, Juan no podía dejar de pensar en el profesor de música, en el conserje y en las obras misteriosas. 
+Ana, por su parte, ya había empezado a trazar un plan en su cabeza. Marcos, como de costumbre, prefería observar, aunque tenía la certeza de que algo importante estaba a punto de ocurrir. Y Pablo y Lucía, aunque intentaban mantener una actitud despreocupada, también estaban decididos a descubrir la verdad. Lo que ninguno de ellos imaginaba, es que esclarecer el misterio los arrastraría a un camino de plagado de misterios, sorpresas y peligros. 
+Capítulo 2: La Separación de los Detectives 
+Al día siguiente, la situación se tornó aún más extraña en la escuela. El ruido de la maquinaria en las obras a veces impedía escuchar al profesor. Además, nuevos maestros seguían apareciendo sorpresivamente de un día para otro, como si hubiesen sido convocados repentinamente para sustituir a los que se habían ido. 
+Cada vez resultaba más sospechoso para los cinco amigos. Ana fue la primera en decidir que no iba a esperar más. Durante el recreo, observó al profesor de música, el señor Méndez, quien cargaba un montón de carpetas bajo el brazo. 
+El profesor, con su pelo desordenado y su bufanda siempre colgando descuidadamente, parecía estar absorto en sus propios pensamientos. Ana decidió seguirlo al salir de clase. 
+Por su parte, Juan tenía otra idea en mente. Durante el descanso de la comida, vio al conserje, el señor Ramiro, merodeando por los alrededores del pabellón derruido, lo cual no parecía tener mucho sentido. Esa misma tarde, después de la última clase, se escondió detrás de unos arbustos para analizar todos sus movimientos. 
+Pablo, Marcos y Lucía, también tenían sus propios planes, aunque no los habían comunicado a nadie. Lucía trató de acceder a la sala de profesores en busca de pistas, mientras que Pablo pensaba que las obras en el pabellón eran el lugar clave. 
+Marcos, como de costumbre, prefería observar desde las sombras, pero estaba decidido a no perder detalle de lo que hicieran los demás. 
+Las investigaciones comenzaron, aunque ninguno de ellos accedió a informar de sus avances al resto. En lugar de trabajar en equipo, todos decidieron que era mejor actuar individualmente. 
+Ana, por ejemplo, siguió al señor Méndez hasta su coche al final del día, sin embargo, no descubrió ninguna actividad sospechosa. El profesor de música solo cargaba más partituras y algunos instrumentos musicales. 
+Juan, en cambio, se percató de que el conserje hablaba con frecuencia con algunos albañiles de la obra. Aunque estaba demasiado lejos para escuchar la conversación, le pareció que estaban discutiendo sobre algo importante. Intentó acercarse un poco más, pero tropezó con una rama, haciendo que el conserje mirara en su dirección. Juan tuvo que esconderse rápidamente detrás de un poste para no ser descubierto. 
+Mientras tanto, al examinar las obras, Pablo, notó que había una pequeña puerta en la parte posterior del pabellón que parecía estar siempre cerrada con llave. Intentó abrirla, aunque sin éxito. Para enterarse de si alguien manipulaba la puerta, marcó una pequeña "P" sobre el polvo de la misma. Nadie la vería, y en caso de que alguien tratara de abrir la puerta la borraría inadvertidamente. 
+Lucía, por su parte, se encontró con un antiguo libro en la sala de profesores. Relataba historias del colegio que habían sucedido en el pasado, pero ninguna le pareció relevante para su investigación. 
+A diario, los cinco seguían investigando por su cuenta, y aunque descubrían pequeñas pistas, no era posible sacar ninguna conclusión. 
+Juan y Pablo comenzaron a sospechar que no eran los únicos investigando. Ambos se cruzaban en los mismos lugares: detrás del pabellón, en los pasillos vacíos, e incluso cerca del despacho del director. 
+Ana también empezó a notar algo raro cuando vio a Lucía husmeando en la biblioteca, aparentemente buscando algo parecido a lo que ella también quería encontrar. 
+Pasaron varias semanas en las que todos se vigilaban entre sí, sin darse cuenta de que estaban jugando al mismo juego. Un día, la situación alcanzó su punto máximo cuando Pablo encontró a Juan revisando la puerta que él mismo había marcado con la "P". Juan no parecía darse cuenta de que la marca ya estaba allí, lo que hizo que Pablo lo mirara con desconfianza. 
+—¿Qué haces aquí? —preguntó Pablo, tratando de sonar casual, aunque su tono lo traicionaba. 
+—Nada —respondió Juan, fingiendo desinterés—. Solo quería echar un vistazo. ¿Y tú? 
+—Lo mismo —dijo Pablo, encogiéndose de hombros. 
+Ambos sabían que había algo más, pero ninguno quería ser el primero en admitir que estaba investigando. Sin embargo, ese momento cambió las cosas. De alguna manera, empezaron a darse cuenta de que todos estaban buscando lo mismo. 
+Esa misma tarde, Lucía encontró a Ana detrás del aula de música, claramente esperando al profesor Méndez. Se miraron fijamente durante un instante, como si estuvieran calculando qué hacer a continuación. Ambas sabían que no podían seguir investigando solas por más tiempo. 
+—¿Tú también, eh? —dijo Ana, cruzando los brazos. 
+—Parece que sí —respondió Lucía, sonriendo ligeramente. 
+Finalmente, los secretos entre los amigos desaparecieron. Todos se habían estado espiando mutuamente. Todos pensaban que los demás sabían algo más, pero en realidad, solo habían estado perdiendo el tiempo. No era cuestión de ser más astutos, sino de unirse. 
+A la mañana siguiente, los cinco se reunieron clandestinamente en su rincón detrás del pabellón. Por primera vez desde que empezaron las obras y las desapariciones, decidieron hablar abiertamente. 
+—Creo que todos estamos investigando lo mismo —dijo Marcos, el más silencioso hasta ahora, pero que siempre sabía más de lo que parecía. 
+—Sí, y estamos haciendo el tonto investigando por separado —añadió Juan, mirando a los demás. 
+—Propongo que trabajemos juntos —dijo Ana con firmeza—. Si nos unimos, seguro que podremos resolver lo que está pasando aquí. ¡Cinco cabezas piensan mejor que una! Todos asintieron. Era hora de formar un equipo. Un equipo de detectives que descubriría la verdad detrás de todo el caos del colegio.  
+Capítulo 3: La Unión Hace la Fuerza 
+Después de discutir un tiempo, acordaron por unanimidad que trabajarían juntos, los cinco amigos se habían quitado un gran peso de encima y estaban más animados que nunca. 
+Ya no estaban solos en esta aventura, podrían contar unos con otros y sobre todo no tendrían que ocultarse nada. El único problema era que no sabían exactamente por dónde empezar, pero tenían la confianza en que con sus habilidades combinadas, podrían resolver el misterio del colegio. 
+La nueva situación les transmitía seguridad, y por primera vez en semanas, sentían que estaban en el camino correcto. 
+Ana trataba de liderar el equipo, como de costumbre, con una energía que parecía inagotable. 
+— Si queremos descubrir lo que está pasando, tenemos que hacer un buen plan bien —dijo Ana cuando los cinco se reunieron en su rincón secreto. — Dividiremos las tareas. Cada uno investigará una parte del misterio. Después, vendremos a este mismo sitio y compartiremos todo lo que descubramos. 
+—¡Muy bien! —contestó Pablo, siempre listo para la acción—. Yo ya le he echado el ojo a una puerta en el pabellón. Estoy seguro que algo importante se esconde detrás. 
+— Y yo me encargo del conserje —dijo Juan, asintiendo con seriedad. — Ayer lo vi hablar con los obreros, y me pareció que discutían algo importante. 
+Lucía intervino, aunque algo más pensativa. —Creo que el profesor de música, el señor Méndez, tiene algo que ver también. Lo he visto merodeando cerca de las obras y hablando con el conserje. No sé qué trama, pero no me gusta. 
+—Yo puedo investigar un poco más en la sala de profesores —añadió Marcos, que pese a ser el más reservado, siempre encontraba la manera de colaborar. — Ayer vi un montón de papeles amontonados en una esquina, y estoy seguro de que hay algo allí que nos puede servir. 
+Ana, satisfecha con el plan, echó una mirada de aprobación a todos ellos y dijo: 
+—Está bien, entonces haremos eso. Esta semana investigamos por separado, pero quedamos al final de cada día para intercambiar nuestros descubrimientos. No permitáis que nos descubran, ni delatéis al resto. ¡Si actuamos como un verdadero equipo, resolveremos este misterio! 
+Los cinco asintieron, emocionados. Por primera vez, sentían que estaban actuando como verdaderos detectives, y la idea de trabajar juntos les hacía sentirse más fuertes. Ahora tenían un propósito claro: descubrir qué se escondía tras los extraños sucesos en el colegio San Martín. 
+Un comienzo emocionante 
+La investigación empezó al día siguiente. Ana fue la primera en tener algo que contar. Después de las clases, se quedó esperando fuera del aula de música, espiando al señor Méndez. El profesor, con su aspecto despistado y sus ropas siempre arrugadas, parecía no notar que alguien lo seguía. 
+—Lo vi entrar en la sala de música con una caja grande —contó Ana esa tarde, cuando se reunieron. — No sé qué había dentro, pero después salió sin ella. Voy a intentar averiguar qué está escondiendo. 
+—¿Y la caja estaba en la sala de música? —preguntó Pablo, intrigado. 
+—Sí, pero estaba cerrada con llave —respondió Ana. — No pude entrar, pero estoy segura de que esconde algo allí. 
+Juan también tenía novedades. Había seguido al conserje, como prometió, y lo había visto hablando con los obreros de la obra. 
+—Lo raro es que siempre se queda mirando el pabellón derruido, como si estuviera vigilando algo. Hoy lo seguí hasta el almacén de las herramientas. Estuvo revolviéndolo todo, parecía buscar algo en particular, pero no lo vi salir con nada. 
+Lucía tomó la palabra a continuación, con su tono más reflexivo. —Me acerqué al profesor de música e sonsacarle algo sobre las obras, pero evitó la conversación. Dijo que no comprendía que durante el curso se hicieran obras en el colegio, pero no le creí ni una palabra. Parecía nervioso, como si guardara algún secreto. 
+Marcos, que hasta ese momento había estado más callado, decidió hablar. 
+—En la sala de profesores encontré unos papeles antiguos. Creo que son planos del colegio, pero están bastante deteriorados. Parecen indicar que hay una parte del colegio que ya no existe, pero no sé bien qué significa. Deberíamos revisarlos más a fondo. 
+Los cinco amigos se miraron entre sí, emocionados por todo lo que habían descubierto en solo un día. Las piezas del rompecabezas empezaban a encajar, pero aún les faltaban muchas respuestas. Sabían que no podían rendirse ahora. 
+El mapa oculto 
+Esa noche, después de la cena, Juan seguía obsesionado con los comentarios de Marcos acerca de los planos antiguos. Si había una parte del colegio que ya no existía, eso podía significar que había algo oculto que nadie más conocía. 
+La idea de túneles ocultos o habitaciones secretas comenzó a rondarle la cabeza. Al día siguiente, al terminar las clases, los cinco amigos se reunieron nuevamente en el rincón convenido. Marcos sacó los papeles arrugados que había encontrado y los estudiaron sobre una mesa improvisada hecha con una caja de cartón. 
+—Mirad —dijo señalando una parte del mapa—. Aquí, en el pabellón de secundaria, hay una sala que no figura en los planos actuales del colegio. Parece que la quitaron en alguna remodelación hace años, pero tal vez sigue ahí, oculta bajo las obras. 
+—Eso explica por qué el conserje y los obreros están tan atentos a esa zona —dijo Juan, cada vez más emocionado. — Están intentando acceder a algo que está escondido bajo tierra. 
+—O puede que estén tratando de ocultarlo —añadió Ana—. Tal vez han estado buscando algo allí durante todo este tiempo. 
+Pablo, siempre el más impetuoso, saltó de su asiento. 
+ —¡Tenemos que ir allí! ¡Esta noche! Si esperamos más, puede que lo encuentren antes que nosotros. Los cinco amigos se miraron entre sí. Sabían que no podían estar en el colegio durante la noche, pero la emoción y la curiosidad los impulsaban a seguir adelante. La situación estaba volviéndose peligrosa, pero lejos de desanimarlos, eso los animaba cada vez más a seguir adelante. 
+—Está decidido —dijo Ana con firmeza. — Esta noche nos colamos en el colegio. Vamos a descubrir qué es lo que están ocultando en el pabellón de secundaria. 
+Capítulo 4: El Colegio de Noche 
+La luna iluminaba débilmente el colegio San Martín cuando los cinco amigos llegaron en silencio. Todos iban vestidos con ropa oscura, tal y como Ana había sugerido. Se sentían como verdaderos detectives en una misión secreta. 
+—¿Estáis seguros de que nadie nos vio salir de casa? —preguntó Lucía, nerviosa. 
+—Seguro —respondió Pablo, sonriendo—. Somos expertos en misiones nocturnas. Ya verás, esto va a ser fácil. 
+Ana, que solía mantener la calma, sacó una pequeña linterna que había encontrado en su casa. A pesar de ser conscientes de que estaban infringiendo las reglas, todos estaban emocionados ya que la curiosidad superaba al miedo. 
+—Recordad el plan — advirtió Ana al abrir la puerta trasera del colegio con una pequeña tarjeta que había llevado para ese propósito. 
+— ¿Recordáis el pabellón en ruinas? Iremos directos allí. En caso de que alguien aparezca, nos esconderemos. No podemos arriesgarnos a que nos pillen. 
+Los cinco caminaron en silencio por los pasillos desiertos del colegio. Era extraño estar allí por la noche, sin bullicio habitual de estudiantes y profesores. Todo estaba en silencio, solo el eco de sus pisadas rompía la calma. Al llegar al edificio de secundaria, se toparon con una escena aún más insólita. 
+En la zona de las obras no había las máquinas luz, sin embargo, las máquinas y herramientas permanecían allí, como si alguien hubiera abandonado el trabajo a medias. 
+Juan susurró sorprendido mientras se escondía tras una pila de ladrillos: "Es extraño que no haya guardias. Pensé que habría alguien vigilando la zona". — Creía que habría alguien cuidando la zona. 
+—Tal vez tienen cámaras —dijo Marcos, mirando a su alrededor con cautela. 
+Ana revisó rápidamente los alrededores. No había señales de cámaras, pero la tensión en el aire era palpable. Todos sentían que algo importante estaba a punto de suceder. 
+—¿Y ahora qué? —preguntó Pablo, impaciente. — ¿Buscamos la puerta oculta o entramos directamente en las obras? 
+—Vamos a buscar la puerta en primer lugar —dijo Ana. — Si los planos de Marcos son correctos, en esta zona debería haber una entrada oculta. 
+Marcos extrajo de su mochila una copia de los planos que había descubierto; de acuerdo a los cuales, se suponía que la habitación secreta se encontraba directamente debajo del suelo del pabellón derruido. Los cinco se pusieron en marcha, revisando cada rincón, cada grieta en el suelo y todo lo que pudiera dar acceso a alguna trampilla o puerta secreta. 
+El Descubrimiento Inesperado 
+Después de lo que parecieron horas de búsqueda, fue Juan quien dio el primer grito. 
+—¡Venid! ¡He encontrado algo! El resto corrió en dirección a Juan, que estaba arrodillado en el suelo, señalando una pequeña losa que parecía más suelta que las demás. Al levantarla con cuidado, Pablo descubrió una cavidad oscura oculta bajo la misma. Poco a poco levantaron otras adyacentes hasta que dejaron al descubierto una cavidad de grandes dimensiones. 
+—Parece una entrada —susurró Lucía, con los ojos muy abiertos. 
+—¿Bajamos? —preguntó Pablo con una mezcla de miedo y emoción. 
+Ana miró a sus amigos. Estaban tan cerca de resolver el misterio que ya no podían echarse atrás. Sacó su linterna, la encendió y asintió. 
+—Vamos. De uno a uno, los cinco bajaron por el pequeño orificio, que daba entrada a una estrecha galería subterránea donde el aire olía a humedad. Al final del túnel, llegaron a una sala que también estaba bajo tierra. El lugar estaba cubierto de polvo, como si nadie hubiera estado allí en muchos años. 
+—¡Este lugar debe tener siglos! —murmuró Marcos, impresionado por lo que contemplaban sus ojos. — Mirad las paredes, son de piedra. 
+Efectivamente, se trataba de una estancia de notables dimensiones con paredes, suelo y bóveda hechos con de piedra mal labrada. Por algunos sitios había signos de humedad, que se manifestaban como manchas oscuras en la piedra o con crecimiento de musgo en las paredes o el techo. 
+ Todo era fascinante, pero lo que captó la atención de todos fue un enigmático artefacto que había en el centro deal fondo de la sala. Era como un gran contenedor metálico, y a su alrededor había numerosas tuberías, algunas de ellas parecían conectarlo con algo bajo el suelo. 
+—¿Qué es eso? —preguntó Lucía, acercándose con precaución. 
+—No sé —respondió Juan. — Pero semejante armatoste no está aquí por casualidad. 
+Ana se aproximó a la caldera y la exploró con cuidado. Al tocarla, notó que estaba fría y polvorienta, pero no parecía ni rota ni dañada. 
+—Tal vez el interés de las obras sea reparar este artefacto —dijo Ana, pensativa. — Quizá haya algo más aquí abajo. 
+Pero justo cuando se disponía a continuar hablando, un sonido rompió el silencio. Unas pisadas comenzaban a escucharse y poco a poco parecían aproximarse. No había duda de que alguien se acercaba. Los amigos se quedaron aterrorizados. 
+—¿Qué hacemos? —preguntó Pablo asustado. 
+—¡Vamos a escondernos! —replicó Ana instintivamente. 
+Corrieron hacia una esquina oscura de la sala y apagaron la linterna. Los pasos sonaban cada vez más cercanos. Parecía que alguien se aproximaba por el túnel. 
+—Nos han descubierto —musitó Marcos. —Estamos atrapados. 
+Antes de que tuvieran tiempo de improvisar un nuevo plan, una luz iluminó repentinamente toda la estancia. Para su asombro, la persona que llegó resultó ser el conserje, el señor Ramiro.  
+—¿Qué estáis haciendo aquí? —dijo con voz severa. 
+Capítulo 5: El Secreto del Conserje 
+Ramiro, el encargado de mantenimiento, observaba a los cinco niños con una mezcla de sorpresa y desconfianza. Sostenía una linterna en la mano y la enfocaba hacia sus rostros pálidos, iluminándolos directamente. Por un breve lapso de tiempo, nadie emitió palabra alguna. Verdaderamente no tenía idea de qué decir. Ramiro estaba igual de confundido que los niños, aunque intentaba controlar la situación. 
+Por su parte, Ana y sus amigos estaban paralizados por el miedo, atrapados sin saber cómo explicar por qué estaban allí en medio de la noche, dentro de un túnel secreto bajo el colegio, pero lo peor de todo era que su padres no sabían nada de sus andanzas nocturnas. 
+—¿Qué hacen ustedes aquí? ¿Qué autorización tienen para estar aquí? —inquirió de nuevo el conserje, mostrando mayor seguridad en su voz. 
+Ana fue la más rápida actuar, decidió que lo mejor tomar el control de la situación. Aunque su intención era proporcionar la menor información posible, acabó haciendo una confesión casi completa. 
+—Nosotros… estábamos investigando. Sabemos que algo raro está ocurriendo en el colegio, y queríamos descubrir qué es —dijo con la voz temblorosa. 
+Ramiro bajó un poco la linterna y dejó de apuntarles directamente. Titubeaba. Por un momento pareció que iba a decir algo, pero luego negó con la cabeza, como si estuviera sopesando la situación. 
+—¿Investigando, eh? ¿Sabéis lo peligroso que es estar aquí abajo? ¡Y a estas horas! —respondió, esta vez con un tono serio, aunque conciliador. 
+— Todo el colegio está patas arriba y nadie nos cuenta nada. —dijo Juan, confiado por el nuevo semblante del conserje. —Nosotros solo queríamos saber por qué las obras son tan secretas y por qué hay profesores que desaparecen  
+Sus amigos asintieron con firmeza, suscribiendo las palabras de Juan, a la vez que trataban de pasar desapercibidos en el grupo. Estaban nerviosos, pero no podían quedarse callados. Por una parte tenían que evitar que su excursión no trascendiera en el colegio ni llegara a oídos de sus padres y por la otra llevaban semanas haciéndose preguntas y no estaban dispuestos quedarse sin respuestas cuando creían tenerlas tan cerca. 
+Ramiro suspiró, bajó la linterna y se llevó la mano al rostro. Parecía abrumado, como si llevara mucho tiempo guardando un secreto demasiado grande para llevarlo él solo. 
+—No es seguro que estéis aquí —advirtió, sin embargo, su tono había variado. Ya parecía más preocupado que enojado. Sin embargo, supongo que si han llegado hasta aquí, es porque no se van a rendir ¿cierto? 
+Los niños intercambiaron miradas. ¿Qué significaba eso? ¿Ramiro sabía algo que no les había contado? 
+—¿Peligroso? —preguntó Lucía extrañada — ¿Qué es tan peligroso? ¿Qué es este lugar? 
+El conserje miró alrededor de la sala subterránea, como si estuviera valorando qué decir y cuánto contar. Finalmente, pareció decidirse. 
+—Esto —dijo mientras señalaba el enorme artefacto metálico que había en u extremo la sala, —forma parte de una instalación anterior a la construcción del colegio. Las obras buscan sanear esta instalación tan antigua, y no solo renovar el pabellón. 
+Ana se acercó al contenedor. 
+—¿Qué es este cacharro? —preguntó aprovechando que el “Sr Ramiro” estaba receptivo, mientras lo examinaba con mayor detenimiento. 
+—Es un tanque,.. un depósito… —dijo Ramiro, bajando la voz con cierta preocupación. — Un depósito muy viejo que contiene… algo peligroso. Lo que se encuentra en el piso de abajo podría tener consecuencias para toda la escuela, e incluso para la ciudad si no se trata con precaución. 
+Los cinco niños se miraron nerviosamente. De pronto, la situación parecía mucho más grave de lo que nunca habían previsto. 
+—¿Es… combustible? —preguntó Pablo, recordando lo que Marcos había mencionado acerca de las tuberías conectadas al suelo. Ramiro hizo un gesto de aprobación de forma pausada. 
+—Sí, algo parecido. El problema es que se trata de una mezcla de productos muy antigua, que ahora está prohibida. Sabemos que es muy inestable. Nadie conoce la instalación al detalle, pero lo que sí sabemos es que carece del mantenimiento adecuado. Por eso las obras se han extendido tanto. No quieren alarmar a los alumnos ni a vuestras familias, pero se temen lo peor. Es posible que ocurra un desastre si no se actúa de forma rápida y responsable. 
+Los cinco amigos sintieron un escalofrío correr por sus cuerpos. Ahora todo cobraba sentido: las obras de construcción, los profesores que se marchaban misteriosamente, el mutismo de la escuela ante los acontecimientos. Intentaban prevenir una crisis más grave sin que nadie se diera cuenta. 
+—Osea, que estamos todos en peligro y nadie nos había informado —dijo Ana, evidenciando claramente su molestia. 
+Ramiro suspiró una vez más. Explicarlo no es sencillo. Los directores y responsables de las obras consideran que es preferible que los alumnos sepan lo menos posible. Sin embargo, no comparto esa opinión. Ya sabéis más de lo que os han dicho, y quizás... quizás podríais ser de ayuda. 
+Los cinco niños se observaron mutuamente. ¿Estaba solicitándoles ayuda el conserje? La situación se volvía cada vez más inesperada. 
+—¿Podemos ayudar en algo? ¿Qué podríamos hacer? Inquirió Marcos, quien hasta ese momento, no había dicho nada, pero sí había estado muy atento a la conversación. 
+Ramiro se inclinó hacia ellos, disminuyendo su tono de voz todavía más. 
+—He estado observando de cerca el trabajo de los obreros, y me parece que son poco precavidos. Existe un problema con una válvula en las tuberías, que debe ser reparado rápidamente para evitar fugas. Sin embargo, no puedo entrar en esa zona sin ser descubierto. Con vuestra ayuda podríamos buscar una forma de acceder y evitar un accidente antes de que sea tarde. 
+Ana, que siempre había demostrado ser la más valiente, fue la primera en manifestar su acuerdo. 
+—Vamos a hacerlo —afirmó, con una determinación impresionó a sus amigos. —Si existe alguna acción que podamos llevar a cabo para prevenir una catástrofe, la llevaremos a cabo. 
+Capítulo 6: La Misión Secreta 
+El silencio reinaba en el colegio, mientras tanto, los cinco amigos y el conserje Ramiro se adentraban cada vez más en el túnel. El sonido de sus pasos sonaba suavemente y las paredes de piedra devolvían un suave eco de sus pasos. El ambiente se notaba cargado. Se notaba que nadie había recorrido ese pasadizo en muchos años. Todos guardaban silencio, estaban alertas, atentos ante cualquier peligro que pudiera arruinar sumisión o poner en riesgo su seguridad o la de la escuela.  
+Ana llevaba su linterna apagada, confiaba en la luz tenue con la que Ramiro alumbraba al avanzar. A pesar de estar en un ambiente sombrío y lo amenazante del entorno, los amigos experimentaban una gran emoción que la impulsaba a seguir adelante, aunque el temor también estaba presente en sus pensamientos. 
+Sus amigos la seguían de cerca. Cada cual improvisaba una función en perfecta coordinación:  Juan escudriñaba nerviosamente el entorno, Lucía se esforzaba por avanzar sigilosamente para poder detectar cualquier sonido de alerta. Pablo era muy inquieto y no podía permanecer tranquilo en momentos como este, por lo que se esforzaba en pensar con claridad. Marcos, como de costumbre, examinaba cuidadosamente cada detalle, tratando de recordar la ruta.  
+—Estamos cerca —susurró Ramiro, deteniéndose frente a una rejilla metálica que bloqueaba el final del túnel. — Detrás de esta rejilla está la zona de las tuberías. La válvula que necesitamos cerrar está justo al final del pasillo. Pero tenemos que ser rápidos y silenciosos. 
+Pablo, siempre ansioso por la acción, se acercó primero. 
+—Yo puedo retirar la rejilla—dijo en voz baja, sacando una herramienta pequeña que había traído de su casa. Su abuelo le había enseñado a manejar tornillos, y parecía una habilidad útil en ese momento. 
+—Date prisa —le urgió Ana, lanzando una mirada hacia el túnel oscuro detrás de ellos. — No sabemos cuánto tiempo tenemos. 
+Con unos giros rápidos de la muñeca, Pablo logró aflojar los tornillos que sujetaban la rejilla al marco. Ramiro asintió en aprobación y ayudó a retirar la pesada pieza de metal sin hacer demasiado ruido. 
+—Bien hecho —murmuró el conserje. — Ahora, sigamos. 
+El grupo se adentró en un pasadizo repleto de las tuberías. Era un lugar estrecho y húmedo. El sonido del agua corriendo a través de las enormes cañerías retumbaba en sus oídos. Las tuberías se extendían por todas partes, como venas de metal que cruzaban el subsuelo del colegio. 
+A lo lejos, podían ver la válvula oxidada que Ramiro les había mencionado, conectada a una tubería más grande que se hundía bajo tierra. 
+—Esa es —dijo Ramiro, señalando la válvula con un gesto. — Está demasiado apretada y oxidada, pero si no la cerramos, podría haber una fuga de combustible. Tenemos que arreglarlo antes de que alguien más lo note y cause un accidente. Ana se acercó a la válvula con cautela. 
+—¿Y cómo la cerramos? Parece imposible moverla —dijo, probando girarla sin éxito. 
+Ramiro sacó una llave inglesa grande de su bolsa. 
+—Con esto —respondió. — Pero necesito que me ayudéis a girarla. Solo no podré hacerlo. Vamos, entre todos lo conseguiremos. 
+Pablo, Juan y Marcos se acercaron rápidamente, mientras Lucía y Ana se quedaban cerca para asegurarse de que nadie viniera. 
+Siguiendo las instrucciones de Ramiro, el equipo rodeó la válvula y empujaron la rueda con todas sus fuerzas. Al inicio, la estructura permaneció inmóvil, pero tras varios intentos, comenzaron a escuchar un ligero chirrido. 
+—¡Con más fuerza! —exclamó Ramiro. — ¡Vamos bien! ¡Una, dos y ... Tres! 
+Tras un rato de esforzado trabajo, la válvula se movió finalmente, produciendo un chirrido definitivo al cerrarse completamente. Ramiro exhaló con alivio, y los niños se dejaron caer al suelo, cansados y a la vez satisfechos. 
+—Ha sido un éxito — anunció Marcos, secándose el sudor de la frente. — ¡Lo conseguimos! 
+—Sí —asintió Ramiro—. Pero esto no termina aquí. La fuga está controlada por ahora, pero tenemos que asegurarnos de que las obras sigan los procedimientos correctos. Si no, podrían cometer más errores. 
+Los cinco amigos se miraron entre sí. Sabían que habían hecho algo importante, pero también sabían que estaban metidos en un asunto mucho más grande de lo que imaginaban al principio. 
+Un Encuentro Inesperado 
+Justo cuando estaban a punto de regresar por el túnel, Ana levantó la mano en señal de alerta. 
+—Escuché algo —susurró. 
+Todos se quedaron en silencio, conteniendo la respiración. A lo lejos, se oían pasos, pero esta vez no eran los de Ramiro ni de nadie del equipo. Alguien más estaba en el túnel, y se acercaba rápidamente. 
+—¡Escondámonos! —ordenó Ana con urgencia. 
+Los cinco se agacharon detrás de un gran conducto de aire, mientras Ramiro apagaba la linterna y se colocaba cerca de la válvula, intentando mantenerse fuera de la vista. Los pasos se hacían cada vez más fuertes, hasta que finalmente, dos figuras aparecieron al final del túnel. Eran hombres vestidos con trajes de trabajo, probablemente obreros de las obras. 
+—¿Qué estarán haciendo aquí a estas horas? —murmuró Lucía, en tono apenas audible. 
+—Debe ser una inspección nocturna —susurró Ramiro—. Pero no pueden vernos aquí. Si nos descubren, avisarán al director y no podremos seguir investigando. 
+Los niños permanecieron callados, mirando desde su escondite. Los trabajadores se aproximaron a la válvula que habían cerrado y empezaron a inspeccionar las tuberías con linternas. Mientras uno de ellos se quejaba sobre las malas condiciones de las instalaciones, el otro parecía estar tomando notas en una libreta. 
+Ana estaba atenta a cada movimiento y no perdía detalle de lo que ocurría. La forma en la que los dos operarios se movían era precisa, daba la impresión de que sabían exactamente lo que buscaban. 
+Después de un rato, uno de ellos se paró frente a la válvula recién cerrada y la examinó minuciosamente. 
+—Oye, esta válvula ha sido manipulada —dijo uno de ellos, mirando al otro con desconfianza. — Observa, tiene zonas sin polvo y se van pisadas en el suelo ¡Alguien ha estado aquí! 
+El otro hombre frunció el ceño. Su expresión denotaba cierta contrariedad. 
+—No lo sé, en todo caso informemos de este hallazgo. Algo no va bien. 
+Los amigos intercambiaron una mirada de complicidad. Su misión estaba en peligro, pues si los hombres contaban sus hallazgos sobre la válvula del túnel, todo el colegio se enteraría de sus correrías nocturnas. Era cuestión de tiempo que sus padres se enteraran. Además, podrían culparlos de  cualquier accidente que pudiera suceder. La posibilidad de ser descubiertos parecía inevitable. Ramiro hizo una señal a los niños y éstos se levantaron con precaución. 
+—No podemos permanecer en este lugar —murmuró. — Debemos marcharnos antes de que nos descubran. 
+ Todos se desplazaron lentamente hacia la salida, en sigilo, procurando no hacer ningún ruido. Sin embargo, en el momento en que estaban a punto de salir del túnel, uno de los hombres detectó su presencia y gritó. 
+—¡Oye, ustedes! ¿Por qué estáis aquí? 
+Ana experimentó la sensación de que el corazón se revolvía violentamente dentro de su pecho intentado escapar de él. Los habían pillado.
+Capítulo 7: La Huida a Contrarreloj 
+Los cinco amigos se estremecieron al escuchar la voz de uno de los trabajadores resonar en el túnel. Sintieron como si el mundo se parara y las cosas sucedieran lentamente. A la par, una sensación de clarividencia les permitió analizar la situación y anticiparse al riesgo que corrían. 
+Ana fue la primera en reaccionar, volviéndose hacia los demás con una expresión que denotaba urgencia. 
+—¡Apresuraos! —murmuró— ¡Rápido! ¡Sin perder tiempo! 
+El grupo comenzó a correr por el estrecho túnel, avanzaban todo lo rápido que podían, tratando de no hacer demasiado ruido. Apagaron la linterna para no proporcionar más pistas a sus persecutores. El sonido de sus pasos resonaba junto con el eco y ruido de los dos operarios que corrían tras ellos. 
+La rapidez con la que habían reaccionado les permitió distanciarse rápidamente de los hombres que habían detectado su presencia. Pero no era suficiente, quedaba mucho camino por recorrer y la falta de luz parecía intensificarse con cada paso que daban. 
+Ramiro seguía detrás de ellos, manteniendo la linterna apagada para pasar desapercibido, pero lo bastante cerca para dirigirlos, pues era el único que conocía bien el camino. Su rostro mostraba preocupación. Era consciente de que, si los descubrían, todo su trabajo previo podía desmoronarse. El director le daría una buena reprimenda y lo que lo que resultaba aún más grave, las obras continuarían progresando sin ningún tipo de supervisión apropiada, poniendo en riesgo a todos. 
+— ¡Aquí! —murmuró Ramiro al doblar la esquina hacia un tramo más oscuro del túnel. Si subimos la escalera antes de que nos alcancen, podremos salir sin ser vistos. 
+Los amigos apenas lograban distinguir nada en la oscuridad, pero confiaban en las instrucciones de Ramiro. Ana caminaba al frente, con Lucía siguiéndola de cerca, tratando de evitar chocar con las sombras de las tuberías que se proyectaban a su alrededor. 
+Juan y Pablo, generalmente muy activos, corrían en silencio, conscientes de que cualquier sonido podría descubrirlos. 
+Marcos, como siempre, analizaba la situación mientras corrían. Tenía la sensación de que esos obreros no eran simples trabajadores. Habían hablado con demasiada confianza sobre la válvula, como si supieran exactamente lo que estaban buscando. ¿Qué hacían allí a esas horas? ¿Y cómo sabían que la válvula había sido manipulada tan rápido? Sus pensamientos fueron interrumpidos por el eco de voces a lo lejos. 
+—¡No pueden estar muy lejos! —gritó uno de los obreros desde atrás. Sus pasos resonaban cada vez más cerca. El grupo aceleró el paso, forzando a sus cuerpos al límite. 
+Ana ya podía ver la escalera de metal al final del pasillo, una salida que prometía libertad. Pero la distancia aún era considerable, y los obreros estaban ganando terreno. 
+—¡Más rápido! —dijo Pablo entre jadeos, sintiendo el peso de la situación. 
+Lucía tropezó por un momento, pero Juan la sostuvo justo a tiempo antes de que cayera al suelo. No podía haber más errores. Çlos obreros estaban demasiado cerca podían ser atrapados. Finalmente, llegaron a la escalera. Era una estructura de metal oxidado, pero parecía lo suficientemente resistente para soportar el peso de todos. 
+—Subid rápido, todos a la vez —ordenó Ramiro. — ¡No hagáis ruido! 
+Ana fue la primera en trepar por la escalera, subiendo con agilidad a pesar del cansancio. Detrás de ella, Lucía subió con cuidado, seguida por Pablo, Juan y Marcos.  
+Ramiro subió en último lugar, mientras con la otra tapaba la luz para dejar salir solo la necesaria paar no tropezar. La subida por la escalera había sido lenta y habían perdido la escasa ventaja que habían sacado inicialmente. Mientras terminaban de ascender, el los pasos de los trabajadores se oían muy próximos y la reverberación añadía más confusión a la situación. 
+Ana, que ya había llegado a la parte superior, se giró y vio cómo las sombras de los hombres aparecían por la entrada del túnel. 
+—¡Están llegando! —murmuró asustada, observando a Ramiro, quien apenas alcanzaba la mitad de la escalera. —¿Continuad! ¡No os paréis! 
+Los amigos treparon con todas sus fuerzas, intentando no hacer ruido mientras alcanzaban la tapa de metal que bloqueaba la salida del túnel. Ana y Pablo la empujaron con fuerza, logrando abrirla solo lo suficiente para que uno de ellos pudiera salir. Ana fue la primera en salir, tirando de Lucía justo detrás de ella. 
+Afuera, el aire fresco de la noche les golpeó el rostro, una sensación de alivio que duró solo un segundo, antes de recordar que todavía no estaban a salvo. 
+—¡Vamos! —dijo Ana, ayudando a los demás a salir rápidamente. Poco a poco, todos lograron salir, incluyendo a Ramiro, quien cerró la tapa con un cuidado extremo para no hacer ruido. Apenas un segundo después, las voces de los obreros se escucharon justo debajo de ellos. 
+—¡Se han escapado! —gritó uno de ellos, frustrado. 
+Ramiro hizo una señal para que se quedaran quietos y en silencio, mientras las voces de los obreros resonaban bajo la tapa. El grupo se quedó agachado, ocultos entre unos arbustos, intentando no moverse mientras los hombres continuaban buscando. 
+—Tranquilos —susurró Ramiro. — Nos hemos librado por poco, pero debemos alejarnos de aquí. 
+Los amigos asintieron, y sin decir una palabra más, comenzaron a moverse sigilosamente a través del jardín trasero del colegio. 
+El terreno estaba cubierto de sombras amenazantes, pero Ramiro sabía el camino de memoria. Tras unos minutos caminando en silencio, llegaron a una pequeña puerta trasera que los llevó a una zona poco transitada del colegio. 
+—Creo que estamos a salvo —dijo Ramiro finalmente, deteniéndose para tomar aire. — Pero tened cuidado. No podemos confiarnos. Esos obreros no son lo que parecen. 
+—Lo noté también —dijo Marcos, que había estado pensativo todo el camino. — Sabían exactamente dónde buscar la válvula y actuaron como si estuvieran esperando que alguien la manipulara. 
+—No creo que fueran obreros normales —añadió Juan. — Quizás estaban vigilando más de cerca de lo que pensábamos. 
+Ramiro asintió. —Eso es lo que me preocupa. Algo raro está pasando, y esos hombres forman parte de ello. No sabemos exactamente quién está detrás de las obras ni cuáles son sus verdaderas intenciones. Pero ahora está más claro que nunca: no solo están haciendo renovaciones en el colegio, están buscando algo. 
+Los cinco amigos se quedaron en silencio, asimilando lo que Ramiro acababa de decir. Lo que al principio había parecido un simple problema con las obras ahora se estaba convirtiendo en algo mucho más serio. 
+—Entonces, ¿qué hacemos ahora? —preguntó Lucía, cruzando los brazos con preocupación. 
+—Debemos seguir investigando, pero con más cuidado —respondió Ana, con determinación en los ojos. — No podemos dejar que esos hombres descubran lo que sabemos. Si lo hacen, nos meteremos en serios problemas. 
+Ramiro asintió de acuerdo. 
+—Lo importante ahora es que volváis a casa y actuéis con normalidad. Mañana nos reuniremos para ver qué podemos hacer. Pero recordad, a partir de ahora, todo lo que hagamos debe ser en secreto. Los amigos asintieron, sabiendo que la situación se estaba volviendo más complicada. 
+Ya no se trataba solo de resolver un misterio, sino de protegerse a sí mismos y al colegio de algo mucho más grande. 
+Con el corazón todavía acelerado por la tensión de la huida, cada uno se fue a su casa, sabiendo que lo que habían vivido esa noche era solo el principio de algo mucho más grande y peligroso. La verdadera misión acababa de comenzar.  
+Capítulo 8: Descifrando el Misterio 
+ A la mañana siguiente, el colegio parecía tranquilo, pero los cinco amigos sabían que todo había cambiado. Ana, Juan, Lucía, Marcos y Pablo se reunieron en el patio, alejados de los demás estudiantes, para discutir lo que había sucedido la noche anterior. 
+—Esos obreros... —empezó Pablo—. Sabían exactamente dónde estábamos. ¿Y por qué estaban allí tan tarde? No tiene sentido. 
+—No eran obreros normales —dijo Ana, pensativa. — Algo está pasando debajo de todo esto, y no creo que tenga nada que ver con simples renovaciones. ¿Recordáis lo que dijo Ramiro? No podemos confiarnos. Él sabe más de lo que nos ha dicho. 
+—Sí, pero no podemos seguir corriendo riesgos —comentó Lucía—. Si nos atrapan de nuevo, podríamos meternos en problemas de verdad. ¿Qué haremos ahora? 
+ Marcos, siempre el pensador del grupo, sacó un pequeño cuaderno que había estado usando para tomar notas. 
+—He estado pensando en eso —dijo, abriendo el cuaderno—. Lo que vimos anoche me hizo darme cuenta de algo. Si esos hombres están vigilando las obras, tal vez hay algo más que están buscando. Algo que Ramiro no nos ha contado aún ¿Y si no es solo una fuga de combustible? 
+ Ana frunció el ceño. 
+—¿Cómo que algo más? —preguntó—. ¿Te refieres a que puede haber algo escondido en el colegio? 
+ —Exacto —respondió Marcos. — Las obras comenzaron justo después de que varios profesores dejaran el colegio repentinamente. Y además, todo se ha vuelto muy secreto. ¿No os parece que hay una conexión? Todo parece demasiado bien coordinado. 
+Los demás se quedaron pensativos, asimilando las palabras de Marcos. Ana fue la primera en hablar. 
+—Tiene sentido. ¿Y si los profesores no se fueron por elección propia? ¿Y si descubrieron algo que no debían? Eso explicaría muchas cosas. 
+—Pero entonces, ¿qué es lo que están buscando? —preguntó Juan. — No pueden estar haciendo todo esto solo por una fuga. 
+—No lo sé —admitió Marcos. — Pero creo que estamos muy cerca de descubrirlo. En ese momento, Ramiro apareció de repente detrás de ellos, asustándolos a todos. 
+—¿Qué hacéis todos aquí tan temprano? —preguntó en voz baja, aunque con una sonrisa que les indicaba que no estaba enfadado. 
+—Estamos intentando entender qué está pasando en las obras —respondió Ana rápidamente. — Anoche fue muy extraño. 
+Ramiro asintió, su rostro se tornó serio. 
+—Tenéis razón en sospechar —dijo mirando alrededor para asegurarse de que nadie más los escuchaba. — Pero también estáis en peligro. Lo que visteis anoche fue solo la punta del iceberg. No puedo contaros todo, pero os diré esto: esas obras no son lo que parecen. Hay algo oculto bajo el colegio, algo que ha estado allí durante mucho tiempo, y creo que los que están detrás de las obras lo saben. Por eso están vigilando tan de cerca. Los amigos intercambiaron miradas sorprendidas. 
+—¿Qué es eso que está oculto? —preguntó Juan, incapaz de contener su curiosidad. 
+Ramiro negó con la cabeza. 
+—No lo sé con certeza —admitió. — Pero tiene que haber una razón por la que varios profesores se fueron de repente. Sospecho que también descubrieron algo. No hay pruebas, pero las desapariciones seguro que no fueron por casualidad. Y si estáis pensando seguir investigando, tendréis que tener mucho cuidado. No podréis confiar en nadie más, ni siquiera en los adultos del colegio. 
+ —¿Ni siquiera en el director? —preguntó Lucía, sorprendida. 
+—Especialmente en el director —respondió Ramiro, con una sonrisa amarga. — Él ha estado apoyando las obras desde el principio. No sé si está implicado directamente, pero no está actuando en el mejor interés del colegio. Solo puedo deciros esto: algo malo está ocurriendo y vosotros tenéis que ser muy inteligentes para no ser atrapados. 
+Los amigos asintieron en silencio. Estaban más decididos que nunca, pero también sabían que las cosas estaban volviéndose más peligrosas. 
+—Gracias, Ramiro —dijo Ana—. Seremos cuidadosos. Pero tenemos que averiguar qué está pasando. 
+Ramiro los miró con preocupación, pero también con admiración. Sabía que los niños eran más valientes de lo que muchos pensaban, pero también sentía temos por lo que pudieran encontrar. 
+—Solo no os pongáis en peligro —dijo finalmente—. Yo os cubriré las espaldas tanto como pueda. 
+Una Nueva Descubierta 
+Esa tarde, después de las clases, los cinco amigos se reunieron nuevamente. Habían estudiado con atención los movimientos en las obras y a los obreros que trabajaban allí. 
+Decidieron que tenían que volver a investigar la zona en secreto, pero esta vez con más cautela. 
+—Tenemos que ser inteligentes —dijo Ana. — No podemos simplemente entrar de nuevo. Nos descubrirán. Necesitamos encontrar una manera de averiguar lo que está pasando sin que se den cuenta de que estamos cerca. 
+—Tengo una idea. —dijo Juan— En la clase de ciencias, vi unos planos viejos del colegio. Si conseguimos echarles un vistazo, podríamos encontrar otra entrada a la zona de las obras, una que no esté vigilada. 
+—Eso podría funcionar. —confirmó Marcos— Si encontramos otra manera de entrar, podremos ver lo que están haciendo realmente sin que nos detecten. 
+Los cinco amigos se dirigieron a la biblioteca, donde Juan había visto los planos. La bibliotecaria, la señora Delgado, era una mujer amable que siempre estaba dispuesta a ayudar, así que no les resultó difícil convencerla de que les dejara ver los archivos antiguos. 
+Después de unos minutos de búsqueda, finalmente encontraron un conjunto de planos antiguos del colegio. A medida que los extendían sobre la mesa, descubrieron algo sorprendente: había varios túneles subterráneos que conectaban diferentes áreas del colegio. Algunos de esos túneles pasaban justo debajo de la zona de las obras. 
+—¡Esto es perfecto! —exclamó Pablo, señalando uno de los túneles en el plano. — Si entramos por aquí, podemos llegar justo debajo de las obras sin que nadie nos vea. 
+Ana asintió, emocionada. 
+—Bien, entonces ya tenemos un plan. Iremos esta noche, cuando todos estén fuera. Pero recordad, tenemos que ser rápidos y silenciosos. Si nos descubren, estaremos acabados. 
+Los amigos pasaron el resto del día planificando su incursión. Sabían que esta era su oportunidad de descubrir lo que realmente estaba sucediendo en el colegio, y estaban decididos a no dejar que nada los detuviera.  
+Capítulo 9: El Camino Bajo Tierra 
+Esa noche, el grupo se reunió de nuevo. Estaban nerviosos, pero decididos. Los planos que habían encontrado en la biblioteca les habían dado una nueva oportunidad para descubrir qué era lo que realmente sucedía bajo las obras del colegio. 
+Sabían que no podían fallar, y esta vez habían trazado un plan mucho más meticuloso. 
+—¿Tenéis todo? —preguntó Ana en voz baja, mientras revisaba su mochila. Linternas, cuadernos, y algo de comida, por si la aventura durara más de lo esperado. 
+—Todo listo —respondió Marcos, sujetando su cuaderno de notas, donde había dibujado un pequeño mapa de los túneles que se extendían bajo el colegio. 
+Juan llevaba un destornillador, por si tenemos que abrir algo, había dicho con una sonrisa traviesa. 
+Lucía y Pablo llevaban las linternas, y Ramiro, fiel a su palabra, había prometido estar cerca para vigilarlos y asegurarse de que no corrieran demasiados riesgos. 
+Entraron al colegio por una puerta trasera que Ramiro les había indicado. El lugar estaba desierto, y la oscuridad les envolvía. Se movieron con cuidado, intentando no hacer ruido mientras avanzaban hacia el punto de entrada que habían marcado en el mapa. 
+El túnel al que debían acceder estaba en una zona que solía ser parte del ala vieja del colegio, mucho más antigua que los nuevos edificios. 
+—Aquí está —susurró Marcos, señalando una puerta casi oculta en un rincón olvidado del sótano. 
+El grupo se detuvo frente a la puerta oxidada, apenas visible bajo la escasa luz de las linternas. Pablo intentó girar el pomo, pero no se movió. 
+—Está cerrada —dijo con frustración. 
+—Déjamelo a mí —dijo Juan, sacando su destornillador. 
+Después de unos minutos de esfuerzo, logró hacer que el cerrojo cediera. Con un chirrido prolongado, la puerta se abrió. Los amigos intercambiaron miradas nerviosas antes de entrar. El túnel que se extendía frente a ellos era angosto y oscuro. Las paredes, estaban cubiertas de polvo y telarañas. Quedaba claro que nadie había pasado por allí en mucho tiempo. El aire era pesado, y el sonido de sus pasos resonaba en el silencio. La única luz provenía de las linternas, que iluminaban distintas porciones del suelo a medida que avanzaban. 
+—Esto da miedo —murmuró Lucía, manteniéndose cerca de Ana. 
+—No te preocupes —respondió Ana, intentando aparentar seguridad. — Estamos juntos en esto. 
+Después de caminar durante unos minutos, comenzaron a escuchar un leve zumbido, como si algo mecánico estuviera funcionando más adelante. 
+—¿Oís eso? —preguntó Pablo, deteniéndose por un momento. 
+—Sí —respondió Marcos, con el ceño fruncido—. Parece algún tipo de máquina. 
+—Vamos a seguir —dijo Ana—. Debemos estar cerca de la zona de las obras. 
+A medida que se adentraban más, el zumbido se volvía más fuerte. De repente, llegaron a una encrucijada en el túnel. Uno de los caminos llevaba a la zona que los planos marcaban como las antiguas calderas del colegio, un área que había sido clausurada hacía muchos años. El otro túnel conducía hacia el área directamente bajo las obras. 
+—Tenemos que decidir —dijo Ana—. Si tomamos el camino de la derecha, llegaremos a las calderas. A la izquierda está la zona de las obras. ¿Qué hacemos? 
+Los amigos intercambiaron miradas. Sabían que cada camino podía llevarlos a una nueva pista, pero también podía esconder más peligros. 
+—Propongo ir hacia las calderas primero —dijo Marcos—. Si esos obreros están buscando algo, puede que lo hayan escondido allí, en un lugar olvidado del colegio. 
+—Vale, vamos a probar —asintió Ana. 
+Con la decisión tomada, giraron a la derecha y avanzaron hacia las calderas. A medida que se acercaban, el aire se volvía más denso, cargado con el olor metálico del óxido. Finalmente, llegaron a una puerta enorme y pesada. En la parte superior, una placa desgastada indicaba CALDERAS - ACCESO RESTRINGIDO. 
+—Parece que no quieren que nadie entre aquí —comentó Juan. 
+Ana tocó la puerta suavemente. Estaba cerrada, pero el cerrojo no parecía tan muy de manipular. Después de unos minutos, Juan logró abrir la puerta y ésta se deslizó con un chirrido que resonó por todo el túnel. Dentro, la sala de calderas era enorme, pero estaba completamente en desuso. 
+Las viejas máquinas estaban cubiertas de polvo y telarañas, y todo el lugar tenía un aire abandonado y fantasmal. Sin embargo, algo llamó inmediatamente la atención del grupo: había una serie de herramientas y cajas de madera dispersas por el suelo. Y, lo más extraño, una lámpara portátil seguía encendida en un rincón. 
+—Alguien ha estado aquí —dijo Lucía, mirando alrededor con los ojos muy abiertos. 
+—Esto no es normal —añadió Marcos, acercándose a las herramientas. — Parecen recientes. ¿Qué están haciendo aquí? 
+Ana caminó más al fondo de la sala, buscando alguna pista. De repente, tropezó con una de las cajas y cayó al suelo. Al levantarse, notó algo extraño: una pequeña mancha oscura en el suelo, justo debajo de una de las calderas. 
+—Mirad esto —dijo, señalando la mancha. Los demás se acercaron y, cuando iluminaron la mancha con las linternas, vieron que no era polvo, sino algo mucho más siniestro. Parecía líquido, pero con un olor fuerte, como a disolvente químico del que había en el laboratorio de química. 
+—Esto es... combustible —dijo Pablo, sorprendido. — Hay una fuga. 
+—Pero... ¿cómo es posible? —preguntó Ana—. Si hay una fuga de combustible aquí, podría ser peligroso. ¡Podría causar un accidente! 
+—Esto es lo que están ocultando —dijo Marcos—. Las obras no son solo renovaciones. Están intentando arreglar esta fuga, pero no quieren que nadie lo sepa. 
+—Si la fuga empeora, podría causar una explosión —añadió Juan, preocupado—. Debemos hacer algo. No podemos dejar que esto continúe. 
+El grupo se quedó en silencio por un momento, asimilando la gravedad de la situación. Ahora entendían por qué había tanta vigilancia en las obras y por qué todo era tan secreto. Si alguien descubría la fuga, el colegio entero estaría en peligro. Pero, al mismo tiempo, sabían que no podían enfrentarse a esto solos. 
+—Debemos avisar al director —dijo Ana finalmente, rompiendo el silencio. — No podemos permitir que esto siga. Si hay una explosión, podríamos perderlo todo. 
+—¿Y si el director está involucrado? —preguntó Lucía, recordando las advertencias de Ramiro. 
+—No lo sé —respondió Ana, dudando—. Pero no tenemos otra opción. Esta fuga es demasiado peligrosa. Quizás si se lo contamos, pueda arreglarlo a tiempo. 
+Los amigos asintieron, sabiendo que Ana tenía razón. Habían descubierto el peligro que se escondía bajo el colegio y ahora tenían que actuar antes de que fuera demasiado tarde. 
+—De acuerdo —dijo Marcos—. Vamos a salir de aquí. Y mañana, hablaremos con el director. 
+Salieron de la sala de calderas con rapidez, sus corazones latían con fuerza. Sabían que estaban en el centro del misterio, y que la decisión que tomaran ahora podría cambiarlo todo. 
+`;
+
+        let sentences = [];
+        let sentenceToParagraphMap = [];
+        let currentSentenceIndex = 0;
+        let stats = { count: 0, hits: 0, partials: 0, errors: 0, letters: 0, startTime: 0 };
+        let timer;
+        let hideTimeout;
+
+        function segmentText(text) {
+            sentences = [];
+            sentenceToParagraphMap = [];
+            const paragraphs = text.split('\n');
+            paragraphs.forEach((p, pIdx) => {
+                const regex = /[^.:?!\n]+[.:?!\n]?/g;
+                const matches = p.match(regex);
+                if (matches) {
+                    matches.forEach(s => {
+                        if (s.trim().length > 1) {
+                            sentences.push(s.trim());
+                            sentenceToParagraphMap.push(pIdx);
+                        }
+                    });
+                }
+            });
+        }
+
+        function updateUserStatus() {
+            segmentText(fullText);
+            const user = document.getElementById('user-select').value;
+            const savedPos = localStorage.getItem(`pos_${user}`) || 0;
+            document.getElementById('user-status').innerText = `Usuario ${user} está en la oración ${parseInt(savedPos) + 1} de ${sentences.length}.`;
+        }
+
+	function clearUserHistory() {
+	    const user = document.getElementById('user-select').value;
+	    if (confirm(`¿Estás seguro de que quieres borrar el historial de ${user}? Esta acción no se puede deshacer.`)) {
+	        let history = JSON.parse(localStorage.getItem('readingLogsV17') || '[]');
+        
+	        // 1. Filtramos y guardamos el historial sin ese usuario
+	        const newHistory = history.filter(log => log.user !== user);
+	        localStorage.setItem('readingLogsV17', JSON.stringify(newHistory));
+        
+	        // 2. Reiniciamos su posición de lectura al principio (0 es la primera frase)
+		        localStorage.setItem(`pos_${user}`, 0); 
+        
+	        alert(`Historial y progreso de ${user} borrados.`);
+	       
+	        // 3. Actualizamos el texto de la pantalla principal
+	        updateUserStatus(); 
+	    }
+	}
+
+
+        function startApp() {
+            const user = document.getElementById('user-select').value;
+            let lastPos = parseInt(localStorage.getItem(`pos_${user}`)) || 0;
+            
+            if (lastPos > 0) {
+                const currentP = sentenceToParagraphMap[lastPos];
+                const targetP = Math.max(0, currentP - 1);
+                lastPos = sentenceToParagraphMap.indexOf(targetP);
+            }
+            
+            currentSentenceIndex = lastPos;
+            stats = { count: 0, hits: 0, partials: 0, errors: 0, letters: 0, startTime: Date.now() };
+            
+            document.getElementById('live-count').innerText = "0";
+            document.getElementById('live-time').innerText = "0.0";
+            document.getElementById('word-display').innerText = "";
+            document.getElementById('reading-screen').classList.remove('hidden');
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('live-panel').classList.remove('hidden');
+
+            if(timer) clearInterval(timer);
+            timer = setInterval(() => {
+                const elapsed = ((Date.now() - stats.startTime) / 1000).toFixed(1);
+                document.getElementById('live-time').innerText = elapsed;
+            }, 100);
+
+            showSentence();
+        }
+
+        function showSentence() {
+            const display = document.getElementById('word-display');
+            if (currentSentenceIndex >= sentences.length) {
+                alert("Fin del texto alcanzado.");
+                finishSession();
+                return;
+            }
+
+            const speedFactor = parseFloat(document.getElementById('speed-select').value);
+            const sentence = sentences[currentSentenceIndex];
+            
+            clearTimeout(hideTimeout);
+            display.innerText = sentence;
+
+            const exposureTime = sentence.length * speedFactor * 1000;
+            hideTimeout = setTimeout(() => { display.innerText = ""; }, exposureTime);
+        }
+
+        function processSentence(type) {
+            clearTimeout(hideTimeout);
+            const sentence = sentences[currentSentenceIndex];
+            
+            if (type === 'hit') stats.hits++;
+            else if (type === 'partial') stats.partials++;
+            else stats.errors++;
+            
+            stats.count++;
+            stats.letters += sentence.length;
+            document.getElementById('live-count').innerText = stats.count;
+            
+            currentSentenceIndex++;
+            localStorage.setItem(`pos_${document.getElementById('user-select').value}`, currentSentenceIndex);
+            
+            showSentence();
+        }
+
+        function finishSession() {
+            clearInterval(timer);
+            clearTimeout(hideTimeout);
+            const totalSecs = ((Date.now() - stats.startTime) / 1000).toFixed(1);
+            
+            const n = new Date();
+            const dateStr = `${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+
+            const successRate = stats.count > 0 ? ((stats.hits / stats.count) * 100).toFixed(1) : 0;
+
+            const logEntry = {
+                date: dateStr,
+                user: document.getElementById('user-select').value,
+                speed: document.getElementById('speed-select').value,
+                duration: totalSecs,
+                count: stats.count,
+                letters: stats.letters,
+                hits: stats.hits,
+                partials: stats.partials,
+                errors: stats.errors,
+                rate: successRate
+            };
+
+            let history = JSON.parse(localStorage.getItem('readingLogsV17') || '[]');
+            history.push(logEntry);
+            localStorage.setItem('readingLogsV17', JSON.stringify(history));
+
+            backToStart();
+
+        }
+
+        function showHistory() {
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('history-screen').classList.remove('hidden');
+            const tbody = document.querySelector('#history-table tbody');
+            const logs = JSON.parse(localStorage.getItem('readingLogsV17') || '[]');
+            tbody.innerHTML = logs.slice().reverse().map(l => `
+                <tr>
+                    <td style="font-family:monospace">${l.date}</td>
+                    <td style="font-weight:bold">${l.user}</td>
+                    <td>${l.speed}</td>
+                    <td>${l.duration}s</td>
+                    <td>${l.count}</td>
+                    <td>${l.letters}</td>
+                    <td style="color:green; font-weight:bold">${l.hits}</td>
+                    <td style="color:#f39c12; font-weight:bold">${l.partials}</td>
+                    <td style="color:red">${l.errors}</td>
+                    <td style="background:#f0f9ff; font-weight:bold">${l.rate}%</td>
+                </tr>
+            `).join('');
+        }
+
+        function backToStart() {
+            document.getElementById('reading-screen').classList.add('hidden');
+            document.getElementById('history-screen').classList.add('hidden');
+            document.getElementById('live-panel').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+            updateUserStatus();
+        }
+
+        updateUserStatus();
+    </script>
+</body>
+</html>

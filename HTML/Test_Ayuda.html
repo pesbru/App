@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Exámenes - Carga Dinámica Local</title>
+    <style>
+        :root {
+            --azul-google: #1a73e8;
+            --rojo-error: #d93025;
+            --verde-exito: #1e8e3e;
+            --gris-suave: #f1f3f4;
+            --marron-obs: #5d4037;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #fafafa; color: #3c4043; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        #pantalla-examen, #pantalla-resultados { display: none; }
+
+        .setup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .full-width { grid-column: 1 / -1; }
+        select, button { padding: 12px; border-radius: 4px; border: 1px solid #dadce0; font-size: 1rem; }
+        
+        .btn-main { background: var(--azul-google); color: white; font-weight: bold; border: none; cursor: pointer; }
+        .btn-secondary { background: #e8f0fe; color: var(--azul-google); border: none; cursor: pointer; }
+        .btn-danger { background: #feeae6; color: var(--rojo-error); border: none; cursor: pointer; }
+
+        /* Botón pequeño para borrar líneas individuales del historial */
+        .btn-delete-row { background: none; border: none; color: var(--rojo-error); cursor: pointer; font-size: 1.1rem; padding: 2px 8px; border-radius: 4px; }
+        .btn-delete-row:hover { background: #feeae6; }
+
+        .reloj-arriba { position: fixed; top: 10px; right: 20px; font-weight: bold; background: #333; color: white; padding: 8px 18px; border-radius: 20px; z-index: 100; }
+        .reloj-abajo { position: fixed; bottom: 10px; right: 20px; font-weight: bold; background: var(--rojo-error); color: white; padding: 8px 18px; border-radius: 20px; z-index: 100; }
+        
+        .mapa-preguntas { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .item-mapa { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: var(--gris-suave); border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
+        .item-mapa.respondida { background: var(--azul-google); color: white; }
+        .item-mapa.actual { border: 2px solid var(--azul-google); font-weight: bold; }
+
+        .opcion { display: block; padding: 15px; margin: 12px 0; border: 2px solid var(--gris-suave); border-radius: 8px; cursor: pointer; }
+        .opcion.seleccionada { border-color: var(--azul-google); background: #e8f0fe; font-weight: bold; }
+        
+        .txt-pista { color: var(--rojo-error); font-weight: bold; margin-top: 15px; display: block; font-style: italic; }
+        .txt-marron { color: var(--marron-obs); background: #efebe9; padding: 10px; border-radius: 4px; display: block; margin-top: 10px; font-style: italic; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
+        th, td { border: 1px solid #dadce0; padding: 8px 4px; text-align: center; }
+        th { background: var(--gris-suave); }
+        .verde { color: var(--verde-exito); font-weight: bold; }
+        .rojo { color: var(--rojo-error); font-weight: bold; }
+
+        #capa-fuegos { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9999; display: none; overflow: hidden; }
+        .particula { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: estallido 1.2s ease-out forwards; }
+        @keyframes estallido { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; } }
+        .letrero-diez { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffd700; font-size: 5rem; font-weight: bold; text-shadow: 0 0 20px gold; font-family: sans-serif; animation: latido 1s infinite alternate; }
+        @keyframes latido { 0% { transform: translate(-50%, -50%) scale(0.9); } 100% { transform: translate(-50%, -50%) scale(1.1); } }
+
+        .tarjeta-trofeo { border: 2px solid #ffd700; margin: 15px 0; padding: 15px; border-radius: 8px; background: #fffdf0; display: flex; align-items: center; gap: 20px; text-align: left; box-shadow: 0 2px 4px rgba(218,165,32,0.15); }
+        .icono-copa { font-size: 3rem; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
+        .info-trofeo h4 { margin: 0 0 5px 0; color: #b8860b; font-size: 1.2rem; }
+        .info-trofeo p { margin: 2px 0; color: #555; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div id="capa-fuegos"></div>
+
+<div class="container" id="menu-principal">
+    <h2 id="titulo-panel" style="text-align: center; color: var(--azul-google);">Cargando Configuración...</h2>
+    <div class="setup-section">
+        <label>Usuario:</label>
+        <select id="sel-usuario"></select>
+        
+        <label>Batería:</label>
+        <select id="sel-bateria" onchange="actualizarBateriaSeleccionada()"></select>
+        
+        <label>Preguntas:</label><select id="sel-num-preguntas"></select>
+        <label>Tiempo (seg):</label><select id="sel-tiempo"></select>
+        
+        <button class="btn-main full-width" onclick="comenzarExamen()">COMENZAR EXAMEN</button>
+        <button class="btn-secondary" onclick="verHistorial()">VER HISTORIAL</button>
+        <button class="btn-secondary" onclick="verTrofeos()">SALA DE TROFEOS</button>
+        <button class="btn-danger full-width" onclick="borrarDatosUsuario()">BORRAR MI HISTORIAL</button>
+    </div>
+</div>
+
+<div class="container" id="pantalla-examen">
+    <div class="reloj-arriba" id="tiempo-transcurrido">00:00</div>
+    <div class="mapa-preguntas" id="mapa"></div>
+    <div id="zona-pregunta">
+        <h3 id="txt-enunciado"></h3>
+        <div id="opciones-contenedor"></div>
+        <div id="pista-contenedor"></div>
+    </div>
+    <div style="margin-top:25px; display: flex; justify-content: space-between; gap:10px;">
+        <button class="btn-secondary" onclick="anteriorPregunta()">Anterior</button>
+        <button class="btn-secondary" onclick="siguientePregunta()">Siguiente</button>
+    </div>
+    <div style="margin-top:15px; display: flex; gap:10px;">
+        <button class="btn-main" onclick="finalizarExamen('finalizado')" style="flex:2;">CORREGIR</button>
+        <button class="btn-danger" onclick="retirarExamen()" style="flex:1;">Retirar</button>
+    </div>
+    <div class="reloj-abajo" id="tiempo-restante">00:00</div>
+</div>
+
+<div class="container" id="pantalla-resultados">
+    <div id="resumen-nota" style="text-align:center;"></div>
+    <div id="lista-correccion"></div>
+    <button class="btn-main full-width" onclick="volverAlInicio()">INICIO</button>
+</div>
+
+<script src="../Usuarios/Usuarios.js"></script>
+
+<script>
+    // Variables de control global
+    let examenActual = [];
+    let respuestasUsuario = [];
+    let indiceActual = 0;
+    let timerTranscurrido, timerRestante;
+    let segTranscurridos = 0, segRestantes = 0;
+
+    let bateriaSeleccionadaObjeto = null;
+    let preguntasDisponiblesPool = [];
+    
+    // Almacén para los scripts cargados en memoria
+    let BATERIAS_CARGADAS = {};
+
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        const grupoNombre = params.get('config') || 'Matematicas'; 
+        const rutaGrupo = params.get('rutaConfig') || 'Grupos_Baterias';
+
+        const scriptGrupo = document.createElement('script');
+        scriptGrupo.src = `${rutaGrupo}/${grupoNombre}.js`;
+        
+        scriptGrupo.onload = () => {
+            if (typeof CONFIG_EXAMENES === 'undefined') {
+                document.getElementById('titulo-panel').innerHTML = `<span class="rojo">Error: CONFIG_EXAMENES no definido en ${grupoNombre}.js</span>`;
+                return;
+            }
+            cargarBateriasEnCadena(0, CONFIG_EXAMENES.baterias);
+        };
+
+        scriptGrupo.onerror = () => {
+            document.getElementById('titulo-panel').innerHTML = `<span class="rojo">Error al cargar archivo de configuración: ${grupoNombre}.js</span>`;
+        };
+
+        document.head.appendChild(scriptGrupo);
+    };
+
+    function cargarBateriasEnCadena(index, listaBaterias) {
+        if (index >= listaBaterias.length) {
+            inicializarPanelControl();
+            return;
+        }
+
+        const bat = listaBaterias[index];
+        const scriptBat = document.createElement('script');
+        scriptBat.src = `Baterias/${bat.archivo}`; 
+
+        scriptBat.onload = () => {
+            if (typeof DATOS_BATERIA !== 'undefined') {
+                BATERIAS_CARGADAS[bat.id] = [...DATOS_BATERIA];
+                DATOS_BATERIA = undefined; 
+            }
+            cargarBateriasEnCadena(index + 1, listaBaterias);
+        };
+
+        scriptBat.onerror = () => {
+            console.error(`No se pudo cargar el archivo físico de la batería: Baterias/${bat.archivo}`);
+            cargarBateriasEnCadena(index + 1, listaBaterias);
+        };
+
+        document.head.appendChild(scriptBat);
+    }
+
+    function inicializarPanelControl() {
+        document.getElementById('titulo-panel').textContent = `Panel de Control - ${CONFIG_EXAMENES.asignatura}`;
+
+        const selU = document.getElementById('sel-usuario');
+        selU.innerHTML = '';
+        if (typeof LISTADO_USUARIOS !== 'undefined' && LISTADO_USUARIOS.length > 0) {
+            LISTADO_USUARIOS.forEach(usuario => {
+                selU.innerHTML += `<option value="${usuario}">${usuario}</option>`;
+            });
+        } else {
+            selU.innerHTML = `<option value="Invitado">Invitado (Falta Usuarios.js)</option>`;
+        }
+
+        const selB = document.getElementById('sel-bateria');
+        selB.innerHTML = '';
+        CONFIG_EXAMENES.baterias.forEach(bateria => {
+            selB.innerHTML += `<option value="${bateria.id}">${bateria.titulo}</option>`;
+        });
+
+        const selN = document.getElementById('sel-num-preguntas');
+        selN.innerHTML = '';
+        for(let i = 10; i <= 100; i += 10) selN.innerHTML += `<option value="${i}">${i} preguntas</option>`;
+        
+        const selT = document.getElementById('sel-tiempo');
+        selT.innerHTML = '';
+        for(let i = 35; i <= 120; i += 10) selT.innerHTML += `<option value="${i}">${i} seg</option>`;
+
+        actualizarBateriaSeleccionada();
+
+        const s = JSON.parse(localStorage.getItem('sesion_activa'));
+        if(s) {
+            const infoBateriaGuardada = CONFIG_EXAMENES.baterias.find(b => b.id === s.bateriaID);
+            if(infoBateriaGuardada) {
+                bateriaSeleccionadaObjeto = infoBateriaGuardada;
+                document.getElementById('sel-usuario').value = s.usuario;
+                document.getElementById('sel-bateria').value = s.bateriaID;
+                document.getElementById('sel-num-preguntas').value = s.totalConfigurado || s.examen.length;
+                
+                examenActual = s.examen;
+                respuestasUsuario = s.respuestas;
+                segTranscurridos = s.segTranscurridos;
+                segRestantes = s.segRestantes;
+                indiceActual = s.indice;
+
+                document.getElementById('menu-principal').style.display = 'none';
+                document.getElementById('pantalla-examen').style.display = 'block';
+                iniciarRelojes();
+                dibujarPregunta();
+                dibujarMapa();
+            }
+        }
+    }
+
+    function actualizarBateriaSeleccionada() {
+        const idBateria = document.getElementById('sel-bateria').value;
+        bateriaSeleccionadaObjeto = CONFIG_EXAMENES.baterias.find(b => b.id === idBateria);
+        preguntasDisponiblesPool = BATERIAS_CARGADAS[idBateria] ? [...BATERIAS_CARGADAS[idBateria]] : [];
+    }
+
+    function comenzarExamen() {
+        actualizarBateriaSeleccionada();
+
+        if (!preguntasDisponiblesPool || preguntasDisponiblesPool.length === 0) {
+            return alert("Error: La batería seleccionada no contiene preguntas cargadas en memoria o el archivo está vacío.");
+        }
+
+        const totalItemsBateria = preguntasDisponiblesPool.length;
+        const cantidadSeleccionada = Math.min(totalItemsBateria, parseInt(document.getElementById('sel-num-preguntas').value));
+
+        const indicesElegidos = new Set();
+        while (indicesElegidos.size < cantidadSeleccionada) {
+            const indiceAleatorio = Math.floor(Math.random() * totalItemsBateria);
+            indicesElegidos.add(indiceAleatorio);
+        }
+
+        examenActual = Array.from(indicesElegidos).map(index => preguntasDisponiblesPool[index]);
+        
+        respuestasUsuario = new Array(examenActual.length).fill(null);
+        segRestantes = examenActual.length * parseInt(document.getElementById('sel-tiempo').value);
+        segTranscurridos = 0;
+        indiceActual = 0;
+
+        document.getElementById('menu-principal').style.display = 'none';
+        document.getElementById('pantalla-examen').style.display = 'block';
+        
+        guardarTemporal();
+        iniciarRelojes();
+        dibujarPregunta();
+        dibujarMapa();
+    }
+
+    function guardarTemporal() {
+        if (!bateriaSeleccionadaObjeto) return;
+        const datos = {
+            usuario: document.getElementById('sel-usuario').value,
+            bateriaID: bateriaSeleccionadaObjeto.id,
+            examen: examenActual,
+            respuestas: respuestasUsuario,
+            segTranscurridos: segTranscurridos,
+            segRestantes: segRestantes,
+            indice: indiceActual,
+            totalConfigurado: document.getElementById('sel-num-preguntas').value
+        };
+        localStorage.setItem('sesion_activa', JSON.stringify(datos));
+    }
+
+    function dibujarPregunta() {
+        const p = examenActual[indiceActual];
+        document.getElementById('txt-enunciado').textContent = `${indiceActual + 1}. ${p.enunciado}`;
+        const cont = document.getElementById('opciones-contenedor');
+        cont.innerHTML = '';
+        p.opciones.forEach((op, i) => {
+            const div = document.createElement('div');
+            div.className = 'opcion' + (respuestasUsuario[indiceActual] === i ? ' seleccionada' : '');
+            div.textContent = `${String.fromCharCode(65 + i)}) ${op}`;
+            div.onclick = () => {
+                respuestasUsuario[indiceActual] = i;
+                guardarTemporal();
+                dibujarPregunta();
+                dibujarMapa();
+            };
+            cont.appendChild(div);
+        });
+        document.getElementById('pista-contenedor').innerHTML = p.observaciones ? `<span class="txt-pista">Pista: ${p.observaciones}</span>` : '';
+    }
+
+    function finalizarExamen(estado) {
+        clearInterval(timerTranscurrido); 
+        clearInterval(timerRestante);
+
+        let a = 0, e = 0, b = 0;
+        examenActual.forEach((p, i) => {
+            if(respuestasUsuario[i] === null) {
+                b++;
+            } else {
+                const respuestaMarcada = parseInt(respuestasUsuario[i], 10);
+                const solucionCorrecta = parseInt(p.correcta, 10);
+                if(respuestaMarcada === solucionCorrecta) a++; else e++;
+            }
+        });
+
+        let notaCalculada = ((a - (e / 3)) / examenActual.length * 10);
+        if (notaCalculada < 0) notaCalculada = 0;
+
+        const esDiezPerfecto = (a === examenActual.length && e === 0 && b === 0);
+        const notaTexto = esDiezPerfecto ? "10,00" : notaCalculada.toFixed(2).replace('.', ',');
+
+        const res = {
+            usuario: document.getElementById('sel-usuario').value,
+            bateria: bateriaSeleccionadaObjeto.titulo,
+            fecha: new Date().toLocaleString(),
+            aciertos: a, errores: e, whites: b, totales: examenActual.length, // Se guardan blancos
+            blancos: b,
+            nota: notaTexto
+        };
+
+        let h = JSON.parse(localStorage.getItem('historial') || '[]');
+        h.push(res);
+        localStorage.setItem('historial', JSON.stringify(h));
+        
+        localStorage.removeItem('sesion_activa');
+
+        if (esDiezPerfecto) {
+            document.getElementById('pantalla-examen').style.display = 'none';
+            lanzarFuegosArtificiales(() => {
+                mostrarResultados(res);
+            });
+        } else {
+            mostrarResultados(res);
+        }
+    }
+
+    function lanzarFuegosArtificiales(callbackAlTerminar) {
+        const capa = document.getElementById('capa-fuegos');
+        capa.innerHTML = '<div class="letrero-diez">¡UN 10 PERFECTO! 🏆</div>';
+        capa.style.display = 'block';
+
+        const intervaloFuegos = setInterval(() => {
+            const xOrigen = Math.random() * window.innerWidth;
+            const yOrigen = Math.random() * (window.innerHeight * 0.6);
+            const colorCarcasa = `hsl(${Math.random() * 360}, 100%, 60%)`;
+
+            for (let i = 0; i < 40; i++) {
+                const particula = document.createElement('div');
+                particula.className = 'particula';
+                particula.style.left = xOrigen + 'px';
+                particula.style.top = yOrigen + 'px';
+                particula.style.backgroundColor = colorCarcasa;
+
+                const angulo = Math.random() * Math.PI * 2;
+                const distancia = 40 + Math.random() * 120;
+                const mx = Math.cos(angulo) * distancia;
+                const my = Math.sin(angulo) * distancia;
+
+                particula.style.setProperty('--mx', `${mx}px`);
+                particula.style.setProperty('--my', `${my}px`);
+
+                capa.appendChild(particula);
+
+                setTimeout(() => particula.remove(), 1200);
+            }
+        }, 400);
+
+        setTimeout(() => {
+            clearInterval(intervaloFuegos);
+            capa.style.display = 'none';
+            capa.innerHTML = '';
+            callbackAlTerminar();
+        }, 5000);
+    }
+
+    function iniciarRelojes() {
+        clearInterval(timerTranscurrido);
+        clearInterval(timerRestante);
+        timerTranscurrido = setInterval(() => {
+            segTranscurridos++;
+            document.getElementById('tiempo-transcurrido').textContent = formatearTiempo(segTranscurridos);
+            guardarTemporal();
+        }, 1000);
+        timerRestante = setInterval(() => {
+            segRestantes--;
+            document.getElementById('tiempo-restante').textContent = formatearTiempo(segRestantes);
+            if(segRestantes <= 0) finalizarExamen('agotado');
+        }, 1000);
+    }
+
+    function dibujarMapa() {
+        const mapa = document.getElementById('mapa');
+        mapa.innerHTML = '';
+        examenActual.forEach((_, i) => {
+            const div = document.createElement('div');
+            div.className = 'item-mapa' + (respuestasUsuario[i] !== null ? ' respondida' : '') + (indiceActual === i ? ' actual' : '');
+            div.textContent = i + 1;
+            div.onclick = () => { indiceActual = i; guardarTemporal(); dibujarPregunta(); dibujarMapa(); };
+            mapa.appendChild(div);
+        });
+    }
+
+    function anteriorPregunta() { if(indiceActual > 0) { indiceActual--; guardarTemporal(); dibujarPregunta(); dibujarMapa(); } }
+    function siguientePregunta() { if(indiceActual < examenActual.length - 1) { indiceActual++; guardarTemporal(); dibujarPregunta(); dibujarMapa(); } }
+    
+    function retirarExamen() { 
+        if(confirm("¿Retirarse? Se guardará el progreso actual en el historial.")) {
+            finalizarExamen('retirado');
+        }
+    }
+
+    function mostrarResultados(res) {
+        document.getElementById('pantalla-examen').style.display = 'none';
+        document.getElementById('pantalla-resultados').style.display = 'block';
+        document.getElementById('resumen-nota').innerHTML = `<h1>Nota: ${res.nota}</h1><p>A:${res.aciertos} E:${res.errores} B:${res.whites || res.blancos || 0}</p>`;
+        
+        let html = '';
+        examenActual.forEach((p, i) => {
+            const u = respuestasUsuario[i];
+            const esCorrecta = u !== null && parseInt(u, 10) === parseInt(p.correcta, 10);
+
+            html += `<div style="border-bottom:1px solid #eee; padding:10px; text-align:left;">
+                <p><b>${i+1}. ${p.enunciado}</b></p>
+                <p class="${esCorrecta ? 'verde' : 'rojo'}">Tu respuesta: ${u!==null?p.opciones[u]:'En blanco'}</p>
+                ${!esCorrecta ? `<p>Correcta: <b>${p.opciones[parseInt(p.correcta, 10)]}</b></p>` : ''}
+                ${p.observaciones?`<span class="txt-marron">Obs: ${p.observaciones}</span>`:''}
+            </div>`;
+        });
+        document.getElementById('lista-correccion').innerHTML = html;
+    }
+
+    // HISTORIAL ACTUALIZADO CON BORRADO INDIVIDUAL SEGURO POR ÍNDICE REAL
+    function verHistorial() {
+        const u = document.getElementById('sel-usuario').value;
+        let hTotal = JSON.parse(localStorage.getItem('historial') || '[]');
+        
+        let table = `<h2>Historial de ${u}</h2>
+        <table>
+            <tr>
+                <th>Fecha</th>
+                <th>Nota</th>
+                <th>Batería</th>
+                <th>Acción</th>
+            </tr>`;
+            
+        // Leemos de atrás hacia adelante para ver lo más nuevo arriba, enviando el índice exacto "i"
+        for (let i = hTotal.length - 1; i >= 0; i--) {
+            if (hTotal[i].usuario === u) {
+                table += `<tr>
+                    <td>${hTotal[i].fecha}</td>
+                    <td><b>${hTotal[i].nota}</b></td>
+                    <td>${hTotal[i].bateria}</td>
+                    <td><button class="btn-delete-row" onclick="solicitarBorradoLinea(${i})" title="Eliminar examen">🗑️</button></td>
+                </tr>`;
+            }
+        }
+        
+        document.body.innerHTML = `<div class="container">${table}</table><button class="btn-main full-width" onclick="volverAlInicio()" style="margin-top:20px;">VOLVER</button></div>`;
+    }
+
+    // FUNCIÓN DE BORRADO ASOCIADA A PS.JS POR CONTRASEÑA
+    function solicitarBorradoLinea(indiceReal) {
+        if (!confirm("¿Estás seguro de que deseas eliminar este registro de examen del historial?")) return;
+
+        // Inyección invisible del archivo de configuración
+        const scriptPs = document.createElement('script');
+        scriptPs.src = '../Configuracion/ps.js';
+
+        scriptPs.onload = () => {
+            const claveMaestra = typeof CLAVE_BORRADO !== 'undefined' ? CLAVE_BORRADO : null;
+            
+            if (!claveMaestra) {
+                alert("Error técnico: No se ha encontrado la variable CLAVE_BORRADO en ps.js");
+                return;
+            }
+
+            const entradaPrompt = prompt("Introduce la contraseña de administrador para autorizar el borrado:");
+            if (entradaPrompt === null) return; 
+
+            if (entradaPrompt === claveMaestra) {
+                let hTotal = JSON.parse(localStorage.getItem('historial') || '[]');
+                
+                // Borrado quirúrgico directo
+                hTotal.splice(indiceReal, 1);
+                
+                localStorage.setItem('historial', JSON.stringify(hTotal));
+                alert("Registro eliminado con éxito.");
+                
+                window.CLAVE_BORRADO = undefined;
+                verHistorial(); // Redibuja la tabla actualizada
+            } else {
+                alert("Contraseña incorrecta. Acción denegada.");
+                window.CLAVE_BORRADO = undefined;
+            }
+        };
+
+        scriptPs.onerror = () => {
+            alert("Error crítico: No se pudo verificar la autorización. Comprueba que exista el archivo '../Configuracion/ps.js'.");
+        };
+
+        document.head.appendChild(scriptPs);
+    }
+
+    function verTrofeos() {
+        const u = document.getElementById('sel-usuario').value;
+        let historialExamenes = JSON.parse(localStorage.getItem('historial') || '[]');
+        let examenesConDiez = historialExamenes.filter(x => x.usuario === u && (x.nota === "10" || x.nota === "10,00"));
+        
+        let html = `<h2>Sala de Trofeos de ${u} 🏆</h2>`;
+        
+        if (examenesConDiez.length > 0) {
+            examenesConDiez.reverse().forEach(x => {
+                let partesFecha = x.fecha.split(' ');
+                let soloFecha = partesFecha[0] || x.fecha;
+                let soloHora = partesFecha[1] || '';
+                let totalPreguntas = x.totales || "?";
+
+                html += `
+                <div class="tarjeta-trofeo">
+                    <div class="icono-copa">🏆</div>
+                    <div class="info-trofeo">
+                        <h4>Examen Perfecto (${totalPreguntas} preguntas)</h4>
+                        <p><b>Batería:</b> ${x.bateria}</p>
+                        <p><b>Fecha:</b> ${soloFecha} ${soloHora ? `| <b>Hora:</b> ${soloHora}` : ''}</p>
+                    </div>
+                </div>`;
+            });
+        } else {
+            html += `<p style="margin: 30px 0; color: #777;">Aún no tienes copas guardadas en tu vitrina.<br>¡Saca un 10 perfecto en cualquier batería para ganar tu primer trofeo!</p>`;
+        }
+        
+        document.body.innerHTML = `<div class="container" style="text-align:center;">${html}<button class="btn-main full-width" onclick="volverAlInicio()" style="margin-top:20px;">VOLVER</button></div>`;
+    }
+
+    function borrarDatosUsuario() {
+        const u = document.getElementById('sel-usuario').value;
+        if(confirm(`¿Estás seguro de que quieres borrar todo el registro de ${u}? Se eliminará permanentemente su historial y sus trofeos.`)) {
+            let h = JSON.parse(localStorage.getItem('historial') || '[]').filter(x => x.usuario !== u);
+            localStorage.setItem('historial', JSON.stringify(h));
+            const s = JSON.parse(localStorage.getItem('sesion_activa'));
+            if(s && s.usuario === u) localStorage.removeItem('sesion_activa');
+            volverAlInicio();
+        }
+    }
+
+    function volverAlInicio() {
+        window.location.href = window.location.pathname + window.location.search;
+    }
+
+    function formatearTiempo(s) {
+        const m = Math.floor(Math.max(0,s) / 60);
+        const seg = Math.max(0,s) % 60;
+        return `${m.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;
+    }
+</script>
+</body>
+</html>
