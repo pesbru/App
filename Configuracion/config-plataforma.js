@@ -17,7 +17,7 @@ const MENU_DATA = [
        submenus: [
            {titulo: "Lectura de texto",
                      url: "Lectura/Velocidad_Lectura.html", 
-                    rutaBase: "Ruta1"
+                    //rutaBase: "Ruta1"
            },
 
            {titulo: "Lectura de palabras",
