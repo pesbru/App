@@ -1,6 +1,6 @@
 // --- 1) CONFIGURACIÓN DE LAS CUATRO VARIABLES DE RUTA BASE ---
 const CONFIG_RUTAS = {
-    Ruta1: "file:///Volumes/Disco Interno/Users/pedrosanta-barbararuperez/Aplicación Miguel/Principal/",
+    Ruta1: "https://pesbru.github.io/App/",
     Ruta2: "", // Libre para uso futuro (Ej: "Lectura/")
     Ruta3: "", // Libre para uso futuro (Ej: "HTML COMPLEJO/")
     Ruta4: ""  // Libre para uso futuro
