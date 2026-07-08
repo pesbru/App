@@ -26,7 +26,7 @@ var DATOS_BATERIA = [
  { id: 25, enunciado: "Dormitorio.png", opciones: ["Answer", "Cousin", "Beach ", "Bedroom"], correcta:  3, observaciones: "-" },
  { id: 26, enunciado: "Estantería-biblioteca.png", opciones: ["Ask", "Dad", "Big ", "Bookcase"], correcta:  3, observaciones: "-" },
  { id: 27, enunciado: "Caja.png", opciones: ["Board", "Family", "Board ", "Box"], correcta:  3, observaciones: "-" },
- { id: 28, enunciado: "Cámara.png", opciones: ["Book", "Father", "Boat ", "Camera"], correcta:  3, observaciones: "-" },
+ { id: 28, enunciado: "Camara.png", opciones: ["Book", "Father", "Boat ", "Camera"], correcta:  3, observaciones: "-" },
  { id: 29, enunciado: "Reloj.png", opciones: ["Bookcase", "Friends", "Boy ", "Clock"], correcta:  3, observaciones: "-" },
  { id: 30, enunciado: "Computadora.png", opciones: ["Class", "Girl", "Build ", "Computer"], correcta:  3, observaciones: "-" },
  { id: 31, enunciado: "Armario.png", opciones: ["Classroom", "Grandfather", "Cupboard", "Car "], correcta:  2, observaciones: "-" },
