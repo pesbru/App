@@ -13,6 +13,12 @@ var CONFIG_EXAMENES = {
             titulo: "Selecciona lo múltiplos de 3",
             archivo: "CL_M_Múltiplos3.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
+        },
+        {
+            id: "LG_003",
+            titulo: "Selecciona lo múltiplos de 5",
+            archivo: "CL_M_Múltiplos5.js", // ¡CORREGIDO! Añadido el .js al final
+            ruta: "Baterias" 
         }
     ]
 };
