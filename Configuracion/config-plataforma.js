@@ -68,6 +68,11 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
+            titulo: "Geometría",
+            url: "HTML/T_Imagenes.html?config=M_Geometria&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
+        },
+        {
             titulo: "Redondeo",
             url: "Matematicas/XX.html", // CORREGIDO: "Matematicas" con ortografía uniforme
             rutaBase: "Ruta1"
