@@ -18,7 +18,7 @@ var DATOS_BATERIA = [
  { id: 16, enunciado: "Angulo_Agudo.png", opciones: ["Ángulo obtuso", "Ángulo agudo", "Ángulo llano", "Ángulo recto"], correcta:  1, observaciones: "" },
  { id: 17, enunciado: "Angulo_Recto.png", opciones: ["Ángulo obtuso", "Ángulo agudo", "Ángulo llano", "Ángulo recto"], correcta:  3, observaciones: "" },
  { id: 18, enunciado: "Angulo_Obtuso.png", opciones: ["Ángulo obtuso", "Ángulo agudo", "Ángulo llano", "Ángulo recto"], correcta:  0, observaciones: "" },
- { id: 19, enunciado: "T_Rectangulo.png", opciones: ["Triángulo escaleno", "Triángulo equilátero", "Triángulo isósceles", "Triángulo obtusángulo"], correcta:  0, observaciones: "Observa los lados" },
+ { id: 19, enunciado: "T_Rectangulo.png", opciones: ["Triángulo escaleno", "Triángulo equilátero", "Triángulo isósceles", "Triángulo obtusángulo"], correcta:  2, observaciones: "Observa los lados" },
  { id: 20, enunciado: "Angulo_Llano.png", opciones: ["Ángulo obtuso", "Ángulo agudo", "Ángulo llano", "Ángulo recto"], correcta:  2, observaciones: "" }
 
 
