@@ -147,6 +147,15 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         }
     ]
+},
+
+//CONVERSIÓN DE IMÁGENES
+
+{
+    titulo: "Conversión de imágenes",
+    url: "HTML/Conversor_PNG200.html",
+    rutaBase: "Ruta1"
+
 }
 
 
