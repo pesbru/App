@@ -6,7 +6,7 @@ var CONFIG_EXAMENES = {
         {
             id: "Cifras_01",
             titulo: "Grado de los adjetivos",
-            archivo: "GradoAdjetivos.js", // ¡CORREGIDO! Añadido el .js al final
+            archivo: "L_GradoAdjetivos.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
