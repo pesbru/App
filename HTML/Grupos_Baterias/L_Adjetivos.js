@@ -12,7 +12,7 @@ var CONFIG_EXAMENES = {
         {
             id: "Cifras_02",
             titulo: "Gentilicios",
-            archivo: "Gentilicios.js", // Este estaba perfecto
+            archivo: "L_Gentilicios.js", // Este estaba perfecto
             ruta: "Baterias"
         }
     ]
