@@ -130,7 +130,15 @@ const MENU_DATA = [
             titulo: "Vocabulario",
             url: "HTML/T_Imagenes.html?config=IM_I_Vocabulario&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
-        }
+        },
+            titulo: "Videos",
+            submenus:[
+            {
+                titulo: "Ropa y Complementos",
+                url: "https://www.youtube.com/watch?v=u9RjmPK7PGE", 
+                rutaBase: "Ruta2"
+            }
+        ]
     ]
 },
 
