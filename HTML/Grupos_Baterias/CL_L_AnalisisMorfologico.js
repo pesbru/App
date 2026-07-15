@@ -1,6 +1,6 @@
 
 var CONFIG_EXAMENES = {
-    asignatura: "Inglés", // Corregido el nombre de la asignatura
+    asignatura: "Lengua: análisis morfológico", // Corregido el nombre de la asignatura
     baterias: [
         {
             id: "LG_001",
