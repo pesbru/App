@@ -9,7 +9,7 @@ var DATOS_BATERIA = [
  { id: 8, enunciado: "GafasSol.png", opciones: ["Letter", "Mirror", "Vegetables ", "Sunglasses"], correcta:  3, observaciones: "" },
  { id: 9, enunciado: "Jersey.png", opciones: ["Letter", "Box", "Breakfast ", "Sweater"], correcta:  3, observaciones: "" },
  { id: 10, enunciado: "Orejeras.png", opciones: ["Classroom", "Cupboard", "Earmuffs", "Rabbit "], correcta:  2, observaciones: "" },
- { id: 11, enunciado: "PantalonCorto.png", opciones: ["Picture", "Picture", "Shorts", "Hamster "], correcta:  2, observaciones: "" },
+ { id: 11, enunciado: "PantalonCorto.png", opciones: ["Picture", "Hoodie", "Shorts", "Hamster "], correcta:  2, observaciones: "" },
  { id: 12, enunciado: "Pantalones.png", opciones: ["Door", "Spinach ", "Fried ", "Trousers"], correcta:  3, observaciones: "" },
  { id: 13, enunciado: "Rebeca.png", opciones: ["Draw", "Pumpkin ", "Prawn ", "Cardigan"], correcta:  3, observaciones: "" },
  { id: 14, enunciado: "Sombrero.png", opciones: ["Curry", "Hat", "Breakfast ", "Red "], correcta:  1, observaciones: "" },
