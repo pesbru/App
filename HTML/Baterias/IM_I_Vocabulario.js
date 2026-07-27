@@ -225,7 +225,34 @@ var DATOS_BATERIA = [
  { id: 224, enunciado: "Fruta.png", opciones: ["Fruit", "Sandwich ", "Frog ", "Opposite"], correcta:  0, observaciones: "" },
  { id: 225, enunciado: "Cerezas.png", opciones: ["Cherries", "Soup ", "Giraffe ", "Road"], correcta:  0, observaciones: "" },
  { id: 226, enunciado: "Un_profesor.png", opciones: ["Hand", "Cheese", "Bean", "Teacher"], correcta:  3, observaciones: "Es una profesión" },
-
+ { id: 274, enunciado: "Vaso.png", opciones: ["Prawn ", "Glass ", "Snail ", "Elbow "], correcta:  1, observaciones: "" },
+ { id: 275, enunciado: "Gran.png", opciones: ["Pumpkin ", "Great ", "Snake ", "Beard  "], correcta:  1, observaciones: "" },
+ { id: 276, enunciado: "Nuevo.png", opciones: ["Mum", "New ", "Spider ", "Blonde  "], correcta:  1, observaciones: "Observa los lados" },
+ { id: 277, enunciado: "Cuaderno.png", opciones: ["Rabbit ", "Notebook ", "Surname", "Mustache  "], correcta:  1, observaciones: "" },
+ { id: 278, enunciado: "Gente.png", opciones: ["Man", "People ", "Mushrooms ", "Frog "], correcta:  1, observaciones: "" },
+ { id: 279, enunciado: "Poema.png", opciones: ["Surname", "Poem ", "Close", "Draw"], correcta:  1, observaciones: "" },
+ { id: 280, enunciado: "Escuela.png", opciones: ["Uncle", "Eraser", "Orange ", "School "], correcta:  3, observaciones: "" },
+ { id: 281, enunciado: "Compartir.png", opciones: ["Playground", "Example", "Pink ", "Share"], correcta:  3, observaciones: "" },
+ { id: 282, enunciado: "Cuchara.png", opciones: ["Friday ", "Find", "Purple ", "Spoon "], correcta:  3, observaciones: "" },
+ { id: 283, enunciado: "Mesa.png", opciones: ["Desk", "Floor", "Red ", "Table "], correcta:  3, observaciones: "" },
+ { id: 284, enunciado: "Degustacion.png", opciones: ["Grandmother", "Boy", "Classmate", "Tasting "], correcta:  3, observaciones: "" },
+ { id: 285, enunciado: "Alli.png", opciones: ["Orange ", "Music", "Dip ", "There "], correcta:  3, observaciones: "" },
+ { id: 286, enunciado: "Tiempo.png", opciones: ["Pink ", "Number", "Kitchen ", "Time "], correcta:  3, observaciones: "" },
+ { id: 287, enunciado: "Juntos.png", opciones: ["Purple ", "Open", "Together ", "Prawn "], correcta:  2, observaciones: "" },
+ { id: 288, enunciado: "Anno.png", opciones: ["Red ", "Page", "Year ", "Pumpkin "], correcta:  2, observaciones: "" },
+ { id: 289, enunciado: "Cumpleannos.png", opciones: ["Friends", "Lunch ", "Birthday ", "Young"], correcta:  2, observaciones: "" },
+ { id: 290, enunciado: "Cuenco.png", opciones: ["Sailing ", "Meal ", "Bowl", "Nose  "], correcta:  2, observaciones: "" },
+ { id: 291, enunciado: "Chinos.png", opciones: ["Surfing ", "Mushrooms ", "Chinese ", "Back  "], correcta:  2, observaciones: "" },
+ { id: 292, enunciado: "Elegir.png", opciones: ["Choose", "Noodles ", "Sailing ", "Neck  "], correcta:  0, observaciones: "" },
+ { id: 293, enunciado: "Algodon.png", opciones: ["Cotton ", "Comics ", "Surfing ", "Shoulder  "], correcta:  0, observaciones: "" },
+ { id: 294, enunciado: "Pais.png", opciones: ["Country ", "Cook ", "Swimming ", "September "], correcta:  0, observaciones: "" },
+ { id: 295, enunciado: "Plato.png", opciones: ["Dish ", "Cry ", "Knife ", "Spring "], correcta:  0, observaciones: "" },
+ { id: 296, enunciado: "Comer.png", opciones: ["Eat ", "Fast ", "Old", "Summer "], correcta:  0, observaciones: "" },
+ { id: 297, enunciado: "Familia.png", opciones: ["Family ", "Grandfather", "Teacher", "Sunday "], correcta:  0, observaciones: "" },
+ { id: 298, enunciado: "Salsa.png", opciones: ["Dip ", "Snail ", "Lunch ", "Thursday "], correcta:  0, observaciones: "" },
+ { id: 299, enunciado: "Cocina.png", opciones: ["Kitchen ", "Snake ", "Meal ", "Restaurant "], correcta:  0, observaciones: "" },
+ { id: 300, enunciado: "Lampara.png", opciones: ["Lamp ", "Spider ", "Mushrooms ", "Rushing "], correcta:  0, observaciones: "" },
+ { id: 301, enunciado: "Papel.png", opciones: ["Paper ", "Lizard ", "Noodles ", "Sand "], correcta:  0, observaciones: "" },
 
 
 //===================================
@@ -245,7 +272,7 @@ var DATOS_BATERIA = [
 // Colores
 // I-School
 // Lugares y direcciones
-// 
+// Tema 2
 // 
 // 
 // 
@@ -270,7 +297,7 @@ var DATOS_BATERIA = [
 // Música
 // números
 // Otros
-// Tema 2
+
 // 
 
 
