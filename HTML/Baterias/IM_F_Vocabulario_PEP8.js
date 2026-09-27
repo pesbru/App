@@ -122,7 +122,7 @@ var DATOS_BATERIA = [
  { id: 109, enunciado: "Diccionario.png", opciones: ["Sous", "Un avocat", "Un dictionnaire", "Un taille-crayon   "], correcta:  2, observaciones: "" },
  { id: 110, enunciado: "Un_profesor.png", opciones: ["Devant", "Un pompier", "Un chirurgien", "Un maître"], correcta:  3, observaciones: "" },
  { id: 111, enunciado: "Clase.png", opciones: ["Une classe", "Un boucher", "Un cuisinier", "Une fille"], correcta:  0, observaciones: "" },
- { id: 112, enunciado: "Alumno.png", opciones: ["Un oreiller", "Un/une élève ", "Un fermier", "Un stylo   "], correcta:  1, observaciones: "" },
+ { id: 112, enunciado: "Alumno.png", opciones: ["Un oreiller", "Un élève ", "Un fermier", "Un stylo   "], correcta:  1, observaciones: "" },
  { id: 113, enunciado: "Una_profesora.png", opciones: ["Garçon", "Parler", "Une maîtresse", "Une farde "], correcta:  2, observaciones: "" },
 
 
