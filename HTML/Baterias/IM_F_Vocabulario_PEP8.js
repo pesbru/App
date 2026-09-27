@@ -167,7 +167,7 @@ var DATOS_BATERIA = [
  { id: 152, enunciado: "Lagarto.png", opciones: ["Grand-mère", "Marcher", "Un lézard", "Un hippopotame"], correcta:  2, observaciones: "" },
  { id: 153, enunciado: "Leon.png", opciones: ["Petit fils", "Parler", "Un lion", "Une girafe"], correcta:  2, observaciones: "" },
  { id: 154, enunciado: "Mono.png", opciones: ["Petite-fille", "Préparer", "Un singe", "Un lézard"], correcta:  2, observaciones: "" },
- { id: 155, enunciado: "Obeja.png", opciones: ["Oncle", "Regarder", "Un mouton", "Un lion"], correcta:  2, observaciones: "" },
+ { id: 155, enunciado: "Oveja.png", opciones: ["Oncle", "Regarder", "Un mouton", "Un lion"], correcta:  2, observaciones: "" },
  { id: 156, enunciado: "Pajaro.png", opciones: ["Tante", "Travailler", "Un oiseau", "Un singe"], correcta:  2, observaciones: "" },
  { id: 157, enunciado: "Pato.png", opciones: ["Cousin", "Un avocat", "Un canard", "Un mouton"], correcta:  2, observaciones: "" },
  { id: 158, enunciado: "Loro.png", opciones: ["Cousine", "Un pompier", "Un perroquet", "Un oiseau"], correcta:  2, observaciones: "" },
