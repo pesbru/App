@@ -5,8 +5,8 @@ var CONFIG_EXAMENES = {
     baterias: [
         {
             id: "Cifras_01",
-            titulo: "La Hora en reloj analógico",
-            archivo: "IM_F_Hora.js", // ¡CORREGIDO! Añadido el .js al final
+            titulo: "Vocabulario PEP-7",
+            archivo: "IM_F_Vocabulario_PEP7.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
