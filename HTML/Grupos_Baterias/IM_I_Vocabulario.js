@@ -6,7 +6,7 @@ var CONFIG_EXAMENES = {
         {
             id: "Cifras_01",
             titulo: "Vocabulario de inglés",
-            archivo: "IM_I_Vocabulario.js", // ¡CORREGIDO! Añadido el .js al final
+            archivo: "IM_I_Vocabulario_PEP7.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         }
     ]
