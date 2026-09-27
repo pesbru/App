@@ -61,7 +61,7 @@ var DATOS_BATERIA = [
  { id: 52, enunciado: "Hoja.png", opciones: ["Un poster", "Une feuille", "Un tableau   ", "Fils"], correcta:  1, observaciones: "" },
  { id: 53, enunciado: "Papelera.png", opciones: ["Un lit", "Une poubelle", "Un papier", "Fille"], correcta:  1, observaciones: "" },
  { id: 54, enunciado: "Carpeta.png", opciones: ["Un oreiller", "Une farde ", "Une feuille", "Enfants"], correcta:  1, observaciones: "" },
- { id: 55, enunciado: "goma_de_borrar.png", opciones: ["Une gomme   ", "Soeur", "Oncle", "Frère"], correcta:  0, observaciones: "" },
+ { id: 55, enunciado: "Goma_de_borrar.png", opciones: ["Une gomme", "Soeur", "Oncle", "Frère"], correcta:  0, observaciones: "" },
  { id: 56, enunciado: "Regla.png", opciones: ["Une règle   ", "Grand-père", "Tante", "Jouer"], correcta:  0, observaciones: "" },
  { id: 57, enunciado: "Estuche.png", opciones: ["Une trousse   ", "Grand-mère", "Cousin", "Manger"], correcta:  0, observaciones: "" },
  { id: 58, enunciado: "Silla.png", opciones: ["Une chaise", "Petit fils", "Cousine", "Marcher"], correcta:  0, observaciones: "" },
