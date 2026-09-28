@@ -127,6 +127,10 @@
             color: var(--verde-texto);
             font-weight: 600;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         /* --- CONTENIDO PRINCIPAL --- */
@@ -157,9 +161,10 @@
                 <ul id="menu-raiz"></ul>
             </nav>
 
-            <!-- Bloque del contador global -->
+            <!-- Bloque del contador global por imagen -->
             <div class="contador-container">
-                Visitas: <span id="visitas-count">...</span>
+                <span>Visitas:</span>
+                <img src="https://librecounter.org/counter.svg?url=pesbru.github.io/App" alt="Contador de visitas" style="vertical-align: middle; height: 18px;" />
             </div>
         </aside>
 
@@ -219,34 +224,6 @@
             });
         }
 
-        // Lógica del contador de visitas GLOBAL mediante API pública
-        function gestionarContadorGlobal() {
-            // REEMPLAZA 'mi-instituto' y 'plataforma' por los nombres que quieras (sin espacios)
-            const namespace = "mi-instituto";
-            const key = "plataforma";
-            
-            // El endpoint '/up' incrementa en 1 y devuelve el total actual
-            const url = `https://api.counterapi.dev/v1/${namespace}/${key}/up`;
-
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error("Error en la red");
-                    return response.json();
-                })
-                .then(data => {
-                    const elementoContador = document.getElementById('visitas-count');
-                    if (elementoContador) {
-                        // 'data.count' trae el número global actualizado
-                        elementoContador.textContent = data.count;
-                    }
-                })
-                .catch(error => {
-                    console.error("No se pudo conectar con el contador global:", error);
-                    const elementoContador = document.getElementById('visitas-count');
-                    if (elementoContador) elementoContador.textContent = "N/D";
-                });
-        }
-
         document.addEventListener("DOMContentLoaded", () => {
             const raiz = document.getElementById('menu-raiz');
             if (typeof MENU_DATA !== 'undefined' && raiz) {
@@ -254,9 +231,6 @@
             } else {
                 console.error("No se ha podido cargar el archivo de configuración o falta el nodo raíz.");
             }
-
-            // Llamamos al contador global al cargar la página
-            gestionarContadorGlobal();
         });
     </script>
 
