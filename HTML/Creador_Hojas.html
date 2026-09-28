@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Fichas de Escritura - Creador de Hojas</title>
+    <style>
+        /* Estilos generales de la aplicación para pantalla */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .no-print {
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        select, button {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Estructura del documento / contenedor imprimible */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .sheet-title {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Cuadrícula de dos columnas */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px 30px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            border: 1px solid #dcdde1;
+            padding: 12px;
+            border-radius: 6px;
+            background: #fafafa;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            gap: 15px;
+        }
+
+        /* Columna izquierda: Imagen y Palabra debajo */
+        .left-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 110px;
+            flex-shrink: 0;
+        }
+
+        .image-box {
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .image-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .word {
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            color: #2f3640;
+            word-break: break-word;
+        }
+
+        /* Columna derecha: Cuatro renglones */
+        .lines {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .line {
+            width: 100%;
+            border-bottom: 1.5px dashed #a4b0be;
+            height: 0;
+        }
+
+        .error-msg {
+            color: #c0392b;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Ajustes específicos para impresión (PDF) */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .item {
+                border: 1px solid #bbb;
+                background: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Panel de control interactivo (Se oculta al imprimir) -->
+    <div class="no-print">
+        <h1 id="lbl-asignatura">Cargando asignatura...</h1>
+        <div class="controls">
+            <label for="select-bateria">Selecciona Batería:</label>
+            <select id="select-bateria">
+                <option value="">-- Selecciona una opción --</option>
+            </select>
+            <button id="btn-imprimir" onclick="window.print()" disabled>Imprimir / Guardar PDF</button>
+        </div>
+    </div>
+
+    <!-- Contenedor de la ficha imprimible -->
+    <div class="container">
+        <div id="sheet-title" class="sheet-title"></div>
+        <div id="grid-content" class="grid">
+            <div style="grid-column: span 2; text-align: center; color: #7f8c8d; padding: 30px;">
+                Selecciona una batería en el menú desplegable superior para generar las fichas.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Obtener el parámetro del archivo de configuración desde la URL (ej: ?config=Grupos_Baterias/IM_F_Config.js)
+        const urlParams = new URLSearchParams(window.location.search);
+        const configFile = urlParams.get('config') || 'Grupos_Baterias/IM_F_Vocabulario_PEP7.js'; // Valor por defecto de prueba o según estructura
+
+        let configData = null;
+
+        // Función para cargar dinámicamente el archivo JS de configuración inicial
+        function cargarConfiguracion() {
+            const script = document.createElement('script');
+            script.src = configFile;
+            script.onload = function() {
+                if (typeof CONFIG_EXAMENES !== 'undefined') {
+                    configData = CONFIG_EXAMENES;
+                    document.getElementById('lbl-asignatura').innerText = "Asignatura: " + configData.asignatura;
+                    
+                    const select = document.getElementById('select-bateria');
+                    select.innerHTML = '<option value="">-- Selecciona una opción --</option>';
+                    
+                    configData.baterias.forEach((bat, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = bat.titulo;
+                        select.appendChild(option);
+                    });
+
+                    select.addEventListener('change', onBateriaChange);
+                } else {
+                    mostrarError("El archivo de configuración no contiene la variable CONFIG_EXAMENES.");
+                }
+            };
+            script.onerror = function() {
+                mostrarError("No se pudo cargar el archivo de configuración en la ruta: " + configFile);
+            };
+            document.head.appendChild(script);
+        }
+
+        // Manejar el cambio de selección en el desplegable de baterías
+        function onBateriaChange(event) {
+            const index = event.target.value;
+            const gridContainer = document.getElementById('grid-content');
+            const titleContainer = document.getElementById('sheet-title');
+            const btnImprimir = document.getElementById('btn-imprimir');
+
+            if (index === "") {
+                gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #7f8c8d; padding: 30px;">Selecciona una batería en el menú desplegable superior para generar las fichas.</div>';
+                titleContainer.innerText = "";
+                btnImprimir.disabled = true;
+                return;
+            }
+
+            const bateriaInfo = configData.baterias[index];
+            titleContainer.innerText = bateriaInfo.titulo;
+
+            // Construir la ruta relativa exacta al archivo de la batería
+            // Estructura: HTML/Baterias/archivo.js
+            const rutaBateriaJS = `${bateriaInfo.ruta}/${bateriaInfo.archivo}`;
+
+            // Eliminar script anterior de batería si existiera cargado previamente
+            const scriptAnterior = document.getElementById('script-bateria-dinamico');
+            if (scriptAnterior) {
+                scriptAnterior.remove();
+            }
+
+            // Cargar el archivo JS de la batería seleccionada
+            const script = document.createElement('script');
+            script.id = 'script-bateria-dinamico';
+            script.src = rutaBateriaJS;
+            script.onload = function() {
+                if (typeof DATOS_BATERIA !== 'undefined' && Array.isArray(DATOS_BATERIA)) {
+                    renderizarFichas(DATOS_BATERIA);
+                    btnImprimir.disabled = false;
+                } else {
+                    mostrarError("El archivo de batería no contiene una matriz válida DATOS_BATERIA.");
+                    btnImprimir.disabled = true;
+                }
+            };
+            script.onerror = function() {
+                mostrarError("No se pudo cargar el archivo de la batería en la ruta: " + rutaBateriaJS);
+                btnImprimir.disabled = true;
+            };
+            document.head.appendChild(script);
+        }
+
+        // Renderizar dinámicamente las tarjetas en base a DATOS_BATERIA
+        function renderizarFichas(datos) {
+            const gridContainer = document.getElementById('grid-content');
+            gridContainer.innerHTML = '';
+
+            datos.forEach(item => {
+                // Obtener la palabra asociada correcta limpiando espacios sobrantes
+                const opcionCorrectaIndex = item.correcta;
+                const palabraCruda = item.opciones[opcionCorrectaIndex] || "";
+                const palabraLimpia = palabraCruda.trim();
+
+                // Ruta de la imagen ajustada a la carpeta raíz ../Imagenes/
+                const rutaImagen = `../Imagenes/${item.enunciado}`;
+
+                // Crear estructura del elemento (dos columnas: izq imagen+palabra, der 4 renglones)
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+
+                itemDiv.innerHTML = `
+                    <div class="left-content">
+                        <div class="image-box">
+                            <img src="${rutaImagen}" alt="${palabraLimpia}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\'><text x=\'0\' y=\'35\' font-size=\'12\' fill=\'red\'>Img error</text></svg>';">
+                        </div>
+                        <div class="word">${palabraLimpia}</div>
+                    </div>
+                    <div class="lines">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                `;
+
+                gridContainer.appendChild(itemDiv);
+            });
+        }
+
+        function mostrarError(mensaje) {
+            const gridContainer = document.getElementById('grid-content');
+            gridContainer.innerHTML = `<div class="error-msg" style="grid-column: span 2;">${mensaje}</div>`;
+        }
+
+        // Inicializar al cargar la página
+        window.onload = function() {
+            cargarConfiguracion();
+        };
+    </script>
+</body>
+</html>
