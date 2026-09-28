@@ -33,7 +33,7 @@
         /* --- MENÚ LATERAL --- */
         #sidebar {
             width: calc(100% / 7);
-            min-width: 220px; /* Ajustado ligeramente para acomodar 3 niveles */
+            min-width: 220px;
             background-color: var(--verde-fondo-menu);
             border-right: 1px solid var(--gris-borde);
             display: flex;
@@ -68,7 +68,6 @@
             margin: 0;
         }
 
-        /* Enlaces principales y botones de menú */
         .menu-item, .submenu-btn {
             display: block;
             padding: 15px 20px;
@@ -91,18 +90,15 @@
             background-color: var(--verde-hover);
         }
 
-        /* Estilo para elementos deshabilitados/por definir */
         .item-desactivado {
             color: #999 !important;
         }
 
-        /* Contenedores de submenús (ocultos por defecto) */
         .submenu-container {
             display: none;
             background-color: rgba(0, 0, 0, 0.02);
         }
 
-        /* CONTROL DE INDENTACIÓN SEGÚN EL NIVEL */
         .nivel-2 .menu-item, .nivel-2 .submenu-btn {
             padding-left: 30px; 
             font-size: 0.88em;
@@ -114,12 +110,23 @@
             border-bottom: none;
         }
 
-        /* Indicador dinámico de despliegue */
         .has-children::after {
             content: ' ▼';
             font-size: 0.7em;
             float: right;
             transition: transform 0.2s;
+        }
+
+        /* --- CONTADOR DE VISITAS GLOBAL --- */
+        .contador-container {
+            padding: 12px 20px;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-top: 1px solid var(--gris-borde);
+            text-align: center;
+            font-size: 0.85em;
+            color: var(--verde-texto);
+            font-weight: 600;
+            box-sizing: border-box;
         }
 
         /* --- CONTENIDO PRINCIPAL --- */
@@ -143,13 +150,17 @@
         
         <aside id="sidebar">
             <div class="logo-container">
-                <img src="https://pesbru.github.io/App/Configuracion/Logo.png" alt="Logo">
+                <img src="Configuracion/logo.png" alt="Logo">
             </div>
 
             <nav>
-                <!-- El árbol de menús se inyectará aquí de manera automática -->
                 <ul id="menu-raiz"></ul>
             </nav>
+
+            <!-- Bloque del contador global -->
+            <div class="contador-container">
+                Visitas: <span id="visitas-count">...</span>
+            </div>
         </aside>
 
         <main id="main-content">
@@ -158,66 +169,46 @@
 
     </div>
 
-    <!-- Carga de la configuración externa de rutas y estructura -->
     <script src="Configuracion/config-plataforma.js"></script>
 
     <script>
-        // Función para alternar la visibilidad de los submenús
         function toggleSubmenu(event, boton) {
-            // Evitamos cualquier comportamiento extraño de propagación
             event.stopPropagation();
-            
-            // El contenedor ul es el hermano siguiente directo del botón
             const submenu = boton.nextElementSibling;
-            
             if (submenu && submenu.classList.contains('submenu-container')) {
-                if (submenu.style.display === "block") {
-                    submenu.style.display = "none";
-                } else {
-                    submenu.style.display = "block";
-                }
+                submenu.style.display = submenu.style.display === "block" ? "none" : "block";
             }
         }
 
-        // Función recursiva e inteligente que genera el árbol HTML del menú
         function construirMenu(items, contenedorAnfitrion, nivel = 1) {
             items.forEach(item => {
                 const li = document.createElement('li');
 
-                // Verificamos si este nodo tiene submenús
                 if (item.submenus && item.submenus.length > 0) {
                     const boton = document.createElement('button');
                     boton.className = 'submenu-btn has-children';
                     boton.textContent = item.titulo;
-                    
-                    // Asignamos el evento de clic nativo pasando el evento y el elemento
                     boton.onclick = function(e) { toggleSubmenu(e, this); };
                     li.appendChild(boton);
 
-                    // Creamos la sub-lista contenedora
                     const ulSubmenu = document.createElement('ul');
                     ulSubmenu.className = `submenu-container nivel-${nivel + 1}`;
-                    
                     li.appendChild(ulSubmenu);
                     contenedorAnfitrion.appendChild(li);
 
-                    // Llamada recursiva para procesar los hijos incrementando el nivel jerárquico
                     construirMenu(item.submenus, ulSubmenu, nivel + 1);
                 } else {
-                    // Es un enlace final (hoja)
                     const enlace = document.createElement('a');
                     enlace.textContent = item.titulo;
                     enlace.target = "visor";
                     enlace.className = "menu-item";
 
-                    // Aplicamos lógica de rutas base si está definida y existe en CONFIG_RUTAS
                     let rutaFinal = item.url;
                     if (item.rutaBase && CONFIG_RUTAS[item.rutaBase]) {
                         rutaFinal = CONFIG_RUTAS[item.rutaBase] + item.url;
                     }
                     enlace.href = rutaFinal;
 
-                    // Si el elemento está marcado como desactivado en la configuración
                     if (item.desactivado) {
                         enlace.classList.add('item-desactivado');
                     }
@@ -228,7 +219,34 @@
             });
         }
 
-        // Arrancamos la inicialización del menú cuando el documento esté completamente cargado
+        // Lógica del contador de visitas GLOBAL mediante API pública
+        function gestionarContadorGlobal() {
+            // REEMPLAZA 'mi-instituto' y 'plataforma' por los nombres que quieras (sin espacios)
+            const namespace = "mi-instituto";
+            const key = "plataforma";
+            
+            // El endpoint '/up' incrementa en 1 y devuelve el total actual
+            const url = `https://api.counterapi.dev/v1/${namespace}/${key}/up`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Error en la red");
+                    return response.json();
+                })
+                .then(data => {
+                    const elementoContador = document.getElementById('visitas-count');
+                    if (elementoContador) {
+                        // 'data.count' trae el número global actualizado
+                        elementoContador.textContent = data.count;
+                    }
+                })
+                .catch(error => {
+                    console.error("No se pudo conectar con el contador global:", error);
+                    const elementoContador = document.getElementById('visitas-count');
+                    if (elementoContador) elementoContador.textContent = "N/D";
+                });
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const raiz = document.getElementById('menu-raiz');
             if (typeof MENU_DATA !== 'undefined' && raiz) {
@@ -236,6 +254,9 @@
             } else {
                 console.error("No se ha podido cargar el archivo de configuración o falta el nodo raíz.");
             }
+
+            // Llamamos al contador global al cargar la página
+            gestionarContadorGlobal();
         });
     </script>
 
