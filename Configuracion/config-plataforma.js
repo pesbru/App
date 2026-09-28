@@ -132,6 +132,11 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
+            titulo: "Listados",
+            url: "HTML/Creador_Hojas.html?config=Grupos_Baterias/IM_I_Vocabulario.js", 
+            rutaBase: "Ruta1"
+        },
+        {
             titulo: "Video",
             url: "https://www.youtube.com/watch?v=u9RjmPK7PGE", 
             rutaBase: "Ruta2"
@@ -154,6 +159,11 @@ const MENU_DATA = [
         {
             titulo: "Vocabulario",
             url: "HTML/T_Imagenes.html?config=IM_F_Vocabulario&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
+        },
+        {
+            titulo: "Listados",
+            url: "HTML/Creador_Hojas.html?config=Grupos_Baterias/IM_F_Vocabulario.js", 
             rutaBase: "Ruta1"
         }
     ]
