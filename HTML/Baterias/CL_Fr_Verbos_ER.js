@@ -1,6 +1,6 @@
 window.DATOS_BATERIA = {
     categorias: ["J'", "Je", "Tu", "Il", "Nous", "Vous", "Ils"], 
-    Palabras: [
+    palabras: [
         { texto: "achetez", cat: 5 },
         { texto: "achète", cat: 0 },
         { texto: "achète", cat: 3 },
