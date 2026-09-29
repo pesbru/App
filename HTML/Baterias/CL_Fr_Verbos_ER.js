@@ -121,4 +121,5 @@ window.bateria1 = {
         { texto: "travailles", cat: 2 },
         { texto: "travaillez", cat: 5 },
         { texto: "travaillons", cat: 4 }
-]}
+]
+};
