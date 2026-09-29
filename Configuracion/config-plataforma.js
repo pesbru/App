@@ -165,6 +165,11 @@ const MENU_DATA = [
             titulo: "Listados",
             url: "HTML/Creador_Hojas.html?config=Grupos_Baterias/IM_F_Vocabulario.js", 
             rutaBase: "Ruta1"
+        },
+        {
+            titulo: "Clasifica: Verbos",
+            url: "HTML/Clasifica.html?config=CL_Fr_Conjugacion_Verbos&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
         }
     ]
 },
