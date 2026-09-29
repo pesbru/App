@@ -1,4 +1,4 @@
-window.bateria1 = {
+window.DATOS_BATERIA = {
     categorias: ["J'", "Je", "Tu", "Il", "Nous", "Vous", "Ils"], 
     Palabras: [
         { texto: "achetez", cat: 5 },
