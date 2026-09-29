@@ -47,7 +47,7 @@ window.DATOS_BATERIA = {
         { texto: "dîne", cat: 3 },
         { texto: "dînent", cat: 6 },
         { texto: "dînes", cat: 2 },
-        { texto: "dīnez", cat: 5 },
+        { texto: "dînez", cat: 5 },
         { texto: "dînons", cat: 4 },
         { texto: "donne", cat: 1 },
         { texto: "donne", cat: 3 },
