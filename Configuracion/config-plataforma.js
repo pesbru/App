@@ -162,7 +162,7 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
-            titulo: "Listados2",
+            titulo: "Listados",
             url: "HTML/Creador_Hojas.html?config=Grupos_Baterias/IM_F_Vocabulario.js", 
             rutaBase: "Ruta1"
         },
