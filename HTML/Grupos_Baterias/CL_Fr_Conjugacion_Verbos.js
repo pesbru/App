@@ -7,6 +7,12 @@ var CONFIG_EXAMENES = {
             titulo: "Conjugación verbos en - ER",
             archivo: "CL_Fr_Verbos_ER.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
+        },
+        {
+            id: "Fr_002",
+            titulo: "Conjugación verbos IREEGULARES",
+            archivo: "CL_Fr_Verbos_Irregulares.js", // ¡CORREGIDO! Añadido el .js al final
+            ruta: "Baterias" 
         }
     ]
 };
