@@ -198,6 +198,11 @@ var DATOS_BATERIA = [
  { id: 183, enunciado: "Mosquito.png", opciones: ["Un cochon", "Choisir", "Un pigeon", "Un moustique"], correcta:  3, observaciones: "" },
  { id: 184, enunciado: "Libelula.png", opciones: ["Un agneau", "Chercher", "Un papillon", "Une libellule"], correcta:  3, observaciones: "" },
 
+ { id: 185, enunciado: "Otono.png", opciones: ["L´automne ", "À côté", "L'oiseau", "Trouver"], correcta:  0, observaciones: "" },
+ { id: 186, enunciado: "Invierno.png", opciones: ["Assis", "L´hiver ", "Dîner", "L´été "], correcta:  1, observaciones: "" },
+ { id: 187, enunciado: "Primavera.png", opciones: ["Le printemps ", "La Tante", "L'heure", "Le singe"], correcta:  0, observaciones: "" },
+ { id: 188, enunciado: "Verano.png", opciones: ["Le maître", "Ranger", "À gauche", "L´été "], correcta:  3, observaciones: "" },
+
 
 
 //  =================
