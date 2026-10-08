@@ -37,9 +37,7 @@ var DATOS_BATERIA = [
  { id: 36, enunciado: "Perdóneme", opciones: ["Désolé", "Excusez-moi", "Excuse-moi", "Je suis désolé"], correcta:  1, observaciones: "La cifra de las centenas es la tercera de la parte entera contando desde la derecha." },
  { id: 37, enunciado: "No hay problema", opciones: ["Je suis désolé", "Il n'y a pas de problème", "Excusez-moi", "Excuse-moi"], correcta:  1, observaciones: "La cifra de las centenas es la tercera de la parte entera contando desde la derecha." },
  { id: 38, enunciado: "No es nada", opciones: ["Excuse-moi", "Ce n'est rien", "Il n'y a pas de problème", "Excusez-moi"], correcta:  1, observaciones: "La cifra de las centenas es la tercera de la parte entera contando desde la derecha." },
- { id: 39, enunciado: "La palabra Observa el número 2817. Indica cuál es la cifra de las DECENAS: es un adverbio de: ", opciones: ["9", "6", "1", "7"], correcta:  2, observaciones: "La cifra de las decenas es la segunda de la parte entera contando desde la derecha." },
-
-
+ 
 
 // Puedes seguir añadiendo hasta 50 siguiendo exactamente este formato.
  // RECUERDA: La última pregunta NO debe llevar coma después de su llave de cierre }.
