@@ -157,8 +157,13 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
-            titulo: "Vocabulario",
+            titulo: "Vocabulario con imagen",
             url: "HTML/T_Imagenes.html?config=IM_F_Vocabulario&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
+        },
+        {
+            titulo: "Test Texto",
+            url: "HTML/Test_Ayuda.html?config=L_AnalisisMorfologico&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         },
         {
