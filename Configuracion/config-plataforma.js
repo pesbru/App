@@ -163,7 +163,7 @@ const MENU_DATA = [
         },
         {
             titulo: "Test Texto",
-            url: "HTML/Test_Ayuda.html?config=L_AnalisisMorfologico&rutaConfig=Grupos_Baterias", 
+            url: "HTML/Test_Ayuda.html?config=FR_Vocabulario&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         },
         {
