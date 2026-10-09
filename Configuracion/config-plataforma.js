@@ -90,6 +90,11 @@ const MENU_DATA = [
             url: "HTML/Test_Ayuda.html?config=L_Adjetivos&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         },
+        {
+            titulo: "Fonemas Confusos",
+            url: "HTML/Test_Ayuda.html?config=L_FonemasConfusos&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
+        },        
 
         {
             titulo: "Análisis morfológico",
