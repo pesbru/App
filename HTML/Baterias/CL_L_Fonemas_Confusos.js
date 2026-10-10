@@ -3,7 +3,7 @@
 
 
 window.DATOS_BATERIA= {
-    categorias: ["C", "G", "GÜ", "J", "K", "QU", "R", "RR", "Z"],
+    categorias: ["C", "G", "GÜ", "J", "K", "QU", "R", "RR", "Z", "GU"],
     palabras: [
 
         { texto: "má.....ina", cat: 5 },
@@ -38,16 +38,16 @@ window.DATOS_BATERIA= {
         { texto: ".....onzalo", cat: 1 },
         { texto: "re.....adera", cat: 1 },
         { texto: "a.....uado", cat: 1 },
-        { texto: "espa.....etis", cat: 1 },
+        { texto: "espa.....etis", cat: 9 },
         { texto: ".....usano", cat: 1 },
         { texto: "pira.....ista", cat: 2 },
         { texto: "un.....ento", cat: 2 },
         { texto: "pin.....ino", cat: 2 },
         { texto: ".....abardina", cat: 1 },
         { texto: "bilin.....e", cat: 2 },
-        { texto: ".....inda", cat: 1 },
-        { texto: ".....irnalda", cat: 1 },
-        { texto: "man.....era", cat: 1 },
+        { texto: ".....inda", cat: 9 },
+        { texto: ".....irnalda", cat: 9 },
+        { texto: "man.....era", cat: 9 },
         { texto: "ci.....eña", cat: 2 },
         { texto: "anti.....uo", cat: 1 },
         { texto: ".....inete", cat: 3 },
