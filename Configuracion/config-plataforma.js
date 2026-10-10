@@ -91,11 +91,15 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
-            titulo: "Fonemas Confusos",
+            titulo: "Fonemas Confusos (test)",
             url: "HTML/Test_Ayuda.html?config=L_FonemasConfusos&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         },        
-
+        {
+            titulo: "Fonemas Confusos (clasifica)",
+            url: "HTML/Clasifica.html?config=CL_L_FonemasConfusos&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
+        }
         {
             titulo: "Análisis morfológico",
             url: "HTML/Test_Ayuda.html?config=L_AnalisisMorfologico&rutaConfig=Grupos_Baterias", 
