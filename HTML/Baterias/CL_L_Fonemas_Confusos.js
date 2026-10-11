@@ -81,7 +81,14 @@ window.DATOS_BATERIA= {
         { texto: "sie.....a", cat: 7 },
         { texto: "Ampa.....o", cat: 6 },
         { texto: ".....eceta", cat: 6 },
-        { texto: "bate…..ía", cat: 6 }
+        { texto: "bate.....ía", cat: 6 },
+        { texto: ".....ilo", cat: 4 },
+        { texto: ".....iwi", cat: 4 },
+        { texto: ".....oala", cat: 4 },
+        { texto: ".....árate", cat: 4 },
+        { texto: "Bi.....ini", cat: 4 },
+        { texto: ".....ayak", cat: 4 },
+        { texto: ".....ebab", cat: 4 }
 
 
     ]
