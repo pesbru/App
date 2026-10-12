@@ -77,7 +77,7 @@ window.DATOS_BATERIA= {
         { texto: "bande.....a", cat: 6 },
         { texto: ".....egalo", cat: 6 },
         { texto: "ba.....io", cat: 7 },
-        { texto: "en.....ollar", cat: 7 },
+        { texto: "en.....ollar", cat: 6 },
         { texto: "sie.....a", cat: 7 },
         { texto: "Ampa.....o", cat: 6 },
         { texto: ".....eceta", cat: 6 },
