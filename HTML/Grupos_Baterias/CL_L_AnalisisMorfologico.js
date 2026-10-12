@@ -22,24 +22,30 @@ var CONFIG_EXAMENES = {
         },
         {
             id: "LG_004",
+            titulo: "PEP8-clasifica verbos por número y persona (frases)",
+            archivo: "CL_L_Verbo_N_y_Persona_Frases.js", // ¡CORREGIDO! Añadido el .js al final
+            ruta: "Baterias" 
+        },
+        {
+            id: "LG_005",
             titulo: "PEP8-clasifica verbos (tiempos Simples Indicativo)",
             archivo: "CL_L_Verbo_IndicativoSimples.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
-            id: "LG_005",
+            id: "LG_006",
             titulo: "Clasifica los determinantes",
             archivo: "CL_L_Determinantes.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
-            id: "LG_006",
+            id: "LG_007",
             titulo: "Clasifica los adverbios",
             archivo: "CL_L_Adverbios.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
-            id: "LG_007",
+            id: "LG_008",
             titulo: "Clasifica las palabras según categoría",
             archivo: "CL_L_Analisis_Morfologico.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
