@@ -126,7 +126,7 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
-            titulo: "Clasifica: Do, Go, Play",
+            titulo: "Clasifica: Partículas",
             url: "HTML/Clasifica.html?config=CL_I_Ingles&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         },
