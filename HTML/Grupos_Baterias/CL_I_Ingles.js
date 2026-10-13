@@ -7,6 +7,12 @@ var CONFIG_EXAMENES = {
             titulo: "Partículas: Do, Go, Play",
             archivo: "CL_I_DoGoPlay.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
+        },
+        {
+            id: "Ingles_002",
+            titulo: "Verbos: Presente Simple / Continuo Pasado Simple",
+            archivo: "CL_I_PresentSimpleContinuoPastSimple.js", 
+            ruta: "Baterias" 
         }
     ]
 };
