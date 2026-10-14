@@ -10,7 +10,7 @@ var CONFIG_EXAMENES = {
         },
         {
             id: "Ingles_002",
-            titulo: "Verbos: Presente Simple / Continuo Pasado Simple",
+            titulo: "Verbos: Presente Simple / Continuo, Pasado Simple",
             archivo: "CL_I_PresentSimpleContinuoPastSimple.js", 
             ruta: "Baterias" 
         }
