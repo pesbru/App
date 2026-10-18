@@ -8,6 +8,12 @@ var CONFIG_EXAMENES = {
             titulo: "Saludos y frases educadas",
             archivo: "Fr_Saludos_Educado.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
+        },
+        {
+            id: "Cifras_02",
+            titulo: "Adjetivos",
+            archivo: "FR_Adjetivos.js", 
+            ruta: "Baterias" 
         }
     ]
 };
