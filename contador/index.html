@@ -61,31 +61,32 @@
     const numero = document.getElementById("visitas");
     const estado = document.getElementById("estado");
 
-    async function iniciarContador() {
-      if (WORKSPACE === "pedro-sbrs-team-5983") {
-        estado.textContent = "Configura tu workspace de CounterAPI";
-        return;
-      }
+async function iniciarContador() {
+  try {
+    const counter = new Counter({
+      workspace: WORKSPACE,
+      timeout: 8000
+    });
 
+    const resultado = await counter.up(COUNTER_NAME);
+    numero.textContent = Number(resultado.data.up_count).toLocaleString("es-ES");
+    estado.textContent = "Actualizado";
+
+    setInterval(async () => {
       try {
-        const counter = new Counter({ workspace: WORKSPACE, timeout: 8000 });
-        const resultado = await counter.up(COUNTER_NAME);
-        numero.textContent = Number(resultado.data.up_count).toLocaleString("es-ES");
+        const lectura = await counter.get(COUNTER_NAME);
+        numero.textContent = Number(lectura.data.up_count).toLocaleString("es-ES");
         estado.textContent = "Actualizado";
-        // Las actualizaciones posteriores solo leen el valor: no suman más visitas.
-        setInterval(async () => {
-          try {
-            const lectura = await counter.get(COUNTER_NAME);
-            numero.textContent = Number(lectura.data.up_count).toLocaleString("es-ES");
-            estado.textContent = "Actualizado";
-          } catch (_) {
-            estado.textContent = "No se pudo actualizar";
-          }
-        }, INTERVALO_MS);
       } catch (_) {
-        estado.textContent = "No se pudo conectar con el contador";
+        estado.textContent = "No se pudo actualizar";
       }
-    }
+    }, INTERVALO_MS);
+
+  } catch (error) {
+    console.error(error);
+    estado.textContent = "No se pudo conectar con el contador";
+  }
+}
 
     iniciarContador();
   </script>
