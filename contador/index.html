@@ -54,51 +54,65 @@
   -->
 
 
-<script type="module">
-  import { Counter } from "https://cdn.jsdelivr.net/npm/counterapi/dist/counter.esm.min.js";
 
-  const WORKSPACE = "pedro-sbrs-team-5983";
-  const ACCESS_TOKEN = "PEGA_AQUI_TU_TOKEN";
-  const COUNTER_NAME = "visitas-web";
-  const INTERVALO_MS = 30000;
+<script>
+const WORKSPACE = "pedro-sbrs-team-5983";
+const TOKEN = "PEGA_AQUI_TU_TOKEN";
+const CONTADOR = "visitas-web";
 
-  const numero = document.getElementById("visitas");
-  const estado = document.getElementById("estado");
+const numero = document.getElementById("visitas");
+const estado = document.getElementById("estado");
 
-  async function iniciarContador() {
-    try {
-      const counter = new Counter({
-        workspace: WORKSPACE,
-        accessToken: ACCESS_TOKEN,
-        timeout: 10000,
-        debug: true
-      });
+const base = `https://api.counterapi.dev/v2/${WORKSPACE}/${CONTADOR}`;
 
-      // Suma una visita al abrir la página.
-      const inicial = await counter.up(COUNTER_NAME);
-      numero.textContent = Number(inicial.value).toLocaleString("es-ES");
-      estado.textContent = "Actualizado";
-
-      // Consulta el valor sin incrementar las visitas.
-      setInterval(async () => {
-        try {
-          const resultado = await counter.get(COUNTER_NAME);
-          numero.textContent = Number(resultado.value).toLocaleString("es-ES");
-          estado.textContent = "Actualizado";
-        } catch (error) {
-          console.error("Error al consultar:", error);
-          estado.textContent = "Error al actualizar";
-        }
-      }, INTERVALO_MS);
-
-    } catch (error) {
-      console.error("Error de CounterAPI:", error);
-      estado.textContent = "No se pudo conectar con el contador";
+async function peticion(url) {
+  const respuesta = await fetch(url, {
+    headers: {
+      "Authorization": `Bearer ${TOKEN}`
     }
+  });
+
+  if (!respuesta.ok) {
+    throw new Error(`Error HTTP ${respuesta.status}`);
   }
 
-  iniciarContador();
+  return respuesta.json();
+}
+
+function mostrar(datos) {
+  const valor = datos.value ?? datos.data?.up_count;
+
+  if (valor == null || !Number.isFinite(Number(valor))) {
+    throw new Error("La API no devolvió un número válido");
+  }
+
+  numero.textContent = Number(valor).toLocaleString("es-ES");
+  estado.textContent = "Actualizado";
+}
+
+async function iniciar() {
+  try {
+    mostrar(await peticion(`${base}/up`));
+    estado.textContent = "Actualizado";
+
+    setInterval(async () => {
+      try {
+        mostrar(await peticion(base));
+      } catch (error) {
+        console.error(error);
+        estado.textContent = "Error al actualizar";
+      }
+    }, 30000);
+
+  } catch (error) {
+    console.error("Error de CounterAPI:", error);
+    estado.textContent = error.message;
+  }
+}
+
+iniciar();
 </script>
+
 
 </body>
 </html>
