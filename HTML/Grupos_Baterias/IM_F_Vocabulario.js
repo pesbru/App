@@ -6,13 +6,19 @@ var CONFIG_EXAMENES = {
         {
             id: "Cifras_01",
             titulo: "Vocabulario PEP-7",
-            archivo: "IM_F_Vocabulario_PEP7.js", // ¡CORREGIDO! Añadido el .js al final
+            archivo: "IM_F_Vocabulario_PEP7.js", 
             ruta: "Baterias" 
         },
         {
             id: "Cifras_02",
             titulo: "Vocabulario PEP-8",
-            archivo: "IM_F_Vocabulario_PEP8.js", // ¡CORREGIDO! Añadido el .js al final
+            archivo: "IM_F_Vocabulario_PEP8.js",
+            ruta: "Baterias" 
+        },
+        {
+            id: "Cifras_03",
+            titulo: "Adjetivos PEP-8",
+            archivo: "IM_F_PEP8_Adjetivos.js", 
             ruta: "Baterias" 
         }
     ]
