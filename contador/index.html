@@ -52,43 +52,56 @@
     2. Cambia "TU_WORKSPACE" por el nombre exacto de tu workspace.
     3. Usa un nombre de contador único para tu web.
   -->
-  <script src="https://cdn.jsdelivr.net/npm/counterapi/dist/counter.browser.min.js"></script>
-  <script>
-    const WORKSPACE = "pedro-sbrs-team-5983"; // Reemplaza esto
-    const COUNTER_NAME = "visitas-web"; // Puedes cambiarlo
-    const INTERVALO_MS = 30000;
+<script src="https://cdn.jsdelivr.net/npm/counterapi/dist/counter.browser.min.js"></script>
+<script>
+  const WORKSPACE = "pedro-sbrs-team-5983";
+  const ACCESS_TOKEN = "PEGA_AQUI_TU_TOKEN";
+  const COUNTER_NAME = "visitas-web";
+  const INTERVALO_MS = 30000;
 
-    const numero = document.getElementById("visitas");
-    const estado = document.getElementById("estado");
+  const numero = document.getElementById("visitas");
+  const estado = document.getElementById("estado");
 
-async function iniciarContador() {
-  try {
-    const counter = new Counter({
-      workspace: WORKSPACE,
-      timeout: 8000
-    });
+  async function iniciarContador() {
+    try {
+      const counter = new Counter({
+        workspace: WORKSPACE,
+        accessToken: ACCESS_TOKEN,
+        timeout: 10000,
+        debug: true
+      });
 
-    const resultado = await counter.up(COUNTER_NAME);
-    numero.textContent = Number(resultado.data.up_count).toLocaleString("es-ES");
-    estado.textContent = "Actualizado";
+      async function mostrarResultado(peticion) {
+        const resultado = await peticion;
+        const valor = resultado.value ?? resultado.data?.up_count;
 
-    setInterval(async () => {
-      try {
-        const lectura = await counter.get(COUNTER_NAME);
-        numero.textContent = Number(lectura.data.up_count).toLocaleString("es-ES");
+        if (valor === undefined || valor === null) {
+          throw new Error("La respuesta no contiene el contador");
+        }
+
+        numero.textContent = Number(valor).toLocaleString("es-ES");
         estado.textContent = "Actualizado";
-      } catch (_) {
-        estado.textContent = "No se pudo actualizar";
       }
-    }, INTERVALO_MS);
 
-  } catch (error) {
-    console.error(error);
-    estado.textContent = "No se pudo conectar con el contador";
+      await mostrarResultado(counter.up(COUNTER_NAME));
+
+      setInterval(async () => {
+        try {
+          await mostrarResultado(counter.get(COUNTER_NAME));
+        } catch (error) {
+          console.error("Error al actualizar:", error);
+          estado.textContent = "Error al actualizar";
+        }
+      }, INTERVALO_MS);
+
+    } catch (error) {
+      console.error("Error de CounterAPI:", error);
+      estado.textContent =
+        "Error: " + (error.message || "revisa la configuración");
+    }
   }
-}
 
-    iniciarContador();
-  </script>
+  iniciarContador();
+</script>
 </body>
 </html>
