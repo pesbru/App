@@ -1,40 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contador de Visitas</title>
-    <style>
-        /* Estilos para centrar el contador en la página en blanco */
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-        .container {
-            text-align: center;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visitas</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f5f5f5;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #171717;
+    }
+    .contador {
+      min-width: 220px;
+      padding: 28px 36px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.07);
+    }
+    .etiqueta {
+      margin: 0 0 8px;
+      color: #666;
+      font-size: .9rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    #visitas {
+      font-size: clamp(2.5rem, 10vw, 4rem);
+      line-height: 1.1;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    #estado { margin-top: 10px; color: #777; font-size: .8rem; }
+  </style>
 </head>
 <body>
+  <main class="contador" aria-live="polite">
+    <p class="etiqueta">Visitas</p>
+    <div id="visitas">—</div>
+    <div id="estado">Cargando contador…</div>
+  </main>
 
-    <div class="container">
-        <!-- CONTADOR DE VISITAS ULTRAESTABLE A TRAVÉS DE SHIELDS.IO -->
-        <div align="center" style="margin: 20px 0;">
-          <img src="https://shields.io" alt="Contador de Visitas" />
-        </div>
-        <!-- FIN DEL CONTADOR -->
-    </div>
+  <!--
+    1. Crea un workspace gratuito en https://app.counterapi.dev/register
+    2. Cambia "TU_WORKSPACE" por el nombre exacto de tu workspace.
+    3. Usa un nombre de contador único para tu web.
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/counterapi/dist/counter.browser.min.js"></script>
+  <script>
+    const WORKSPACE = "TU_WORKSPACE"; // Reemplaza esto
+    const COUNTER_NAME = "visitas-web"; // Puedes cambiarlo
+    const INTERVALO_MS = 30000;
 
+    const numero = document.getElementById("visitas");
+    const estado = document.getElementById("estado");
+
+    async function iniciarContador() {
+      if (WORKSPACE === "TU_WORKSPACE") {
+        estado.textContent = "Configura tu workspace de CounterAPI";
+        return;
+      }
+
+      try {
+        const counter = new Counter({ workspace: WORKSPACE, timeout: 8000 });
+        const resultado = await counter.up(COUNTER_NAME);
+        numero.textContent = Number(resultado.data.up_count).toLocaleString("es-ES");
+        estado.textContent = "Actualizado";
+        // Las actualizaciones posteriores solo leen el valor: no suman más visitas.
+        setInterval(async () => {
+          try {
+            const lectura = await counter.get(COUNTER_NAME);
+            numero.textContent = Number(lectura.data.up_count).toLocaleString("es-ES");
+            estado.textContent = "Actualizado";
+          } catch (_) {
+            estado.textContent = "No se pudo actualizar";
+          }
+        }, INTERVALO_MS);
+      } catch (_) {
+        estado.textContent = "No se pudo conectar con el contador";
+      }
+    }
+
+    iniciarContador();
+  </script>
 </body>
 </html>
-
-
-</body>
-</html>
-
