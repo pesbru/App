@@ -52,8 +52,11 @@
     2. Cambia "TU_WORKSPACE" por el nombre exacto de tu workspace.
     3. Usa un nombre de contador único para tu web.
   -->
-<script src="https://cdn.jsdelivr.net/npm/counterapi/dist/counter.browser.min.js"></script>
-<script>
+
+
+<script type="module">
+  import { Counter } from "https://cdn.jsdelivr.net/npm/counterapi/dist/counter.esm.min.js";
+
   const WORKSPACE = "pedro-sbrs-team-5983";
   const ACCESS_TOKEN = "PEGA_AQUI_TU_TOKEN";
   const COUNTER_NAME = "visitas-web";
@@ -71,37 +74,31 @@
         debug: true
       });
 
-      async function mostrarResultado(peticion) {
-        const resultado = await peticion;
-        const valor = resultado.value ?? resultado.data?.up_count;
+      // Suma una visita al abrir la página.
+      const inicial = await counter.up(COUNTER_NAME);
+      numero.textContent = Number(inicial.value).toLocaleString("es-ES");
+      estado.textContent = "Actualizado";
 
-        if (valor === undefined || valor === null) {
-          throw new Error("La respuesta no contiene el contador");
-        }
-
-        numero.textContent = Number(valor).toLocaleString("es-ES");
-        estado.textContent = "Actualizado";
-      }
-
-      await mostrarResultado(counter.up(COUNTER_NAME));
-
+      // Consulta el valor sin incrementar las visitas.
       setInterval(async () => {
         try {
-          await mostrarResultado(counter.get(COUNTER_NAME));
+          const resultado = await counter.get(COUNTER_NAME);
+          numero.textContent = Number(resultado.value).toLocaleString("es-ES");
+          estado.textContent = "Actualizado";
         } catch (error) {
-          console.error("Error al actualizar:", error);
+          console.error("Error al consultar:", error);
           estado.textContent = "Error al actualizar";
         }
       }, INTERVALO_MS);
 
     } catch (error) {
       console.error("Error de CounterAPI:", error);
-      estado.textContent =
-        "Error: " + (error.message || "revisa la configuración");
+      estado.textContent = "No se pudo conectar con el contador";
     }
   }
 
   iniciarContador();
 </script>
+
 </body>
 </html>
