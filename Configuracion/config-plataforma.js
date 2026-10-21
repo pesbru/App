@@ -76,6 +76,11 @@ const MENU_DATA = [
             titulo: "Redondeo",
             url: "Matematicas/XX.html", // CORREGIDO: "Matematicas" con ortografía uniforme
             rutaBase: "Ruta1"
+        },
+        {
+            titulo: "Ordenar números",
+            url: "HTML/Ordenar.html?config=Ord_M_ SMD&rutaConfig=Grupos_Baterias, 
+            rutaBase: "Ruta1"
         }
     ]
 },
