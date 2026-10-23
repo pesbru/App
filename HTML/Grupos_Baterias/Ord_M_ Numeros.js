@@ -11,13 +11,13 @@ window.CONFIG_EXAMENES = {
     },
     {
       id: "Secuencia_01",
-      titulo: "Ordenar de Menor a Mayor (0 - 100)",
+      titulo: "Ordenar de Menor a Mayor (0 - 1000)",
       archivo: "Ord_Menor_Mayor_0_01000.js",
       ruta: "Baterias"
     },
     {
       id: "Secuencia_01",
-      titulo: "Ordenar de Menor a Mayor (0 - 100)",
+      titulo: "Ordenar de Menor a Mayor (0 - 10000)",
       archivo: "Ord_Menor_Mayor_0_10000.js",
       ruta: "Baterias"
     }
