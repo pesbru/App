@@ -8,12 +8,6 @@ window.CONFIG_EXAMENES = {
       titulo: "Ordenar de Menor a Mayor",
       archivo: "Ord_Menor_Mayor.js",
       ruta: "Baterias"
-    },
-    {
-      id: "Secuencia_02",
-      titulo: "Historia: Línea del Tiempo",
-      archivo: "Hist_Cronologia.js",
-      ruta: "Baterias"
     }
   ]
 };
