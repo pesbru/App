@@ -79,7 +79,7 @@ const MENU_DATA = [
         },
         {
             titulo: "Ordenar números",
-            url: "HTML/Ordenar.html?config=Ord_M_ SMD&rutaConfig=Grupos_Baterias", 
+            url: "HTML/Ordenar.html?config=Ord_M_ Numeros&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         }
     ]
