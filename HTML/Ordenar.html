@@ -90,6 +90,14 @@ select{width:100%;min-height:54px;border:1px solid #cbd8e6;border-radius:9px;bac
   "use strict";
   const $ = id => document.getElementById(id);
   const state = { indexConfig:null, battery:null, selectedExercises:[], current:0, score:0, selectedId:null, checked:false };
+const ALUMNOS = [
+  { id: "alumno_01", nombre: "Ana García" },
+  { id: "alumno_02", nombre: "Luis Pérez" },
+  { id: "alumno_03", nombre: "María López" },
+  { id: "alumno_04", nombre: "Carlos Ruiz" },
+  { id: "alumno_05", nombre: "Sofía Torres" }
+];
+  
   const params = new URLSearchParams(location.search);
   const configName = params.get("config");
   const configPath = params.get("rutaConfig");
@@ -111,8 +119,10 @@ select{width:100%;min-height:54px;border:1px solid #cbd8e6;border-radius:9px;bac
       if(!window.CONFIG_EXAMENES || !Array.isArray(window.CONFIG_EXAMENES.baterias)) throw new Error("El índice no define CONFIG_EXAMENES.baterias.");
       state.indexConfig=window.CONFIG_EXAMENES;
       if ($("subject")) $("subject").textContent=state.indexConfig.asignatura || "Juegos educativos";
-      $("student").innerHTML='<option value="">Selecciona alumno</option>';
-      (state.indexConfig.alumnos || []).forEach((s,i)=>option($("student"),String(s.id ?? i),s.nombre ?? String(s)));
+      
+$("student").innerHTML='<option value="">Selecciona alumno</option>';
+ALUMNOS.forEach(s => option($("student"), s.id, s.nombre));
+      
       $("exam").innerHTML='<option value="">Selecciona una prueba</option>';
       state.indexConfig.baterias.forEach((b,i)=>option($("exam"),String(i),b.titulo || b.id || b.archivo));
       if(!$("student").options.length || $("student").options.length===1) $("student").disabled=true;
