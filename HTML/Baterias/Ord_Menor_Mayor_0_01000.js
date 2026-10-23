@@ -154,7 +154,6 @@ window.CONFIG_EJERCICIOS = {
  { id: 147, elementos: [275, 782, 794] },
  { id: 148, elementos: [437, 758, 816] },
  { id: 149, elementos: [205, 637, 710] },
- { id: 150, elementos: [497, 750, 775] },
-
+ { id: 150, elementos: [497, 750, 775] }
   ]
 };
