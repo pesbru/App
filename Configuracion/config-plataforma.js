@@ -114,6 +114,11 @@ const MENU_DATA = [
             titulo: "Clasifica: análisis morfológico",
             url: "HTML/Clasifica.html?config=CL_L_AnalisisMorfologico&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
+        },
+        {
+            titulo: "Clasifica: verbos",
+            url: "HTML/Clasifica.html?config=CL_L_Verbos&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
         }
     ]
 },
