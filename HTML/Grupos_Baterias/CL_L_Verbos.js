@@ -5,7 +5,7 @@ var CONFIG_EXAMENES = {
         {
             id: "LG_001",
             titulo: "PEP8-Modo indicativo (tiempos simples)",
-            archivo: "CL_L_Indicativo_Simples.js", // ¡CORREGIDO! Añadido el .js al final
+            archivo: "L_Indicativo_Simples.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         }
 
