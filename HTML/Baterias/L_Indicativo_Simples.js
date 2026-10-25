@@ -1,6 +1,6 @@
 var DATOS_BATERIA = [
 
-    palabras: [
+
  { id: 1, enunciado: "El verbo VOSOTROS VIVIRÍAIS pertenece al tiempo: ", opciones: ["Condicional simple", "Pretérito imperfecto", "Pretérito perfecto simple", "Futuro simple"], correcta:  0, observaciones: "Comprueba si la acción ya ha pasado, sucede ahora, sucederá más delante o sucederá dependiendo de algo." },
  { id: 2, enunciado: "El verbo TÚ CANTABAS pertenece al tiempo: ", opciones: ["Pretérito imperfecto", "Condicional simple", "Presente", "Pretérito perfecto simple"], correcta:  0, observaciones: "Comprueba si la acción ya ha pasado, sucede ahora, sucederá más delante o sucederá dependiendo de algo." },
  { id: 3, enunciado: "El verbo ÉL VIVIRÍA pertenece al tiempo: ", opciones: ["Condicional simple", "Futuro simple", "Condicional simple", "Pretérito imperfecto"], correcta:  0, observaciones: "Comprueba si la acción ya ha pasado, sucede ahora, sucederá más delante o sucederá dependiendo de algo." },
