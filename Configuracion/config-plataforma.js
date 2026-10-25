@@ -116,8 +116,8 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
-            titulo: "Clasifica: verbos",
-            url: "HTML/Clasifica.html?config=CL_L_Verbos&rutaConfig=Grupos_Baterias", 
+            titulo: "Test: verbos",
+            url: "HTML/Test_Ayuda.html?config=CL_L_Verbos&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         }
     ]
