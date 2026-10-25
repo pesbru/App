@@ -117,7 +117,7 @@ const MENU_DATA = [
         },
         {
             titulo: "Test: verbos",
-            url: "HTML/Test_Ayuda.html?config=CL_L_Verbos&rutaConfig=Grupos_Baterias", 
+            url: "HTML/Test_Ayuda.html?config=L_Verbos&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
         }
     ]
