@@ -5,248 +5,660 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ordenar · Juegos educativos</title>
 <style>
-:root{--azul:#1268b3;--azul2:#eaf4ff;--verde:#16845b;--fondo:#f4f8fc;--texto:#17324d;--borde:#c9dced;--rojo:#b42318}
-*{box-sizing:border-box}body{margin:0;background:var(--fondo);color:var(--texto);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-header{background:linear-gradient(110deg,#075da8,#1878c9);color:white;padding:18px clamp(16px,4vw,42px);display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-h1{font-size:clamp(1.2rem,2.4vw,1.7rem);margin:0}header p{margin:3px 0 0;opacity:.9}.controls{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.field{display:grid;gap:4px;font-size:.88rem}.field select{min-width:170px}
-main{max-width:1400px;margin:24px auto;padding:0 18px 28px}.toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:white;border:1px solid var(--borde);padding:14px 16px;border-radius:14px;margin-bottom:16px}.pill{background:var(--azul2);color:#064b86;border-radius:999px;padding:7px 12px;font-weight:700}.progress{height:12px;background:#dce8f2;border-radius:999px;overflow:hidden;flex:1;min-width:100px}.progress span{height:100%;display:block;background:#18a66a;width:0;transition:width .2s}.score{margin-left:auto;font-weight:700}
-h2{margin:0 0 4px;font-size:1.2rem}.hint{margin:0 0 14px;color:#4c6680;font-size:.94rem}.game{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:16px}.panel{background:white;border:1px solid var(--borde);border-radius:14px;padding:18px;min-width:0}.panel.source{background:linear-gradient(#f4faff,#eaf5ff)}.panel.target{background:linear-gradient(#f2fcf7,#e8f8f0);border-color:#9ed9ba}.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(84px,100%),1fr));gap:10px;align-content:start}.tile{min-height:58px;padding:10px;border:2px solid #6ba8df;background:white;border-radius:10px;font-size:1.12rem;font-weight:750;display:flex;align-items:center;justify-content:center;text-align:center;overflow-wrap:anywhere;cursor:grab;user-select:none;touch-action:manipulation;box-shadow:0 2px 0 #d2e6f8}.tile:focus-visible,.slot:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #f3b23f;outline-offset:2px}.tile.selected{outline:3px solid #f2a900;outline-offset:2px}.tile.dragging{opacity:.4}.slotgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(90px,100%),1fr));gap:10px}.slot{min-height:76px;border:2px dashed #a6c7dd;border-radius:10px;background:#f7fbff;padding:5px;display:flex;flex-direction:column;gap:4px;align-items:stretch;justify-content:center;text-align:center}.slot.over{background:#d7f5e6;border-color:#16845b}.slot .slotnum{font-size:.72rem;color:#58728a;text-align:left;padding-left:4px}.slot .tile{width:100%;min-height:44px;cursor:grab;padding:6px;font-size:1rem}.actions{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px;padding:14px;background:white;border:1px solid var(--borde);border-radius:12px}.actions .buttons{display:flex;gap:10px;flex-wrap:wrap}button{border:0;border-radius:9px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}button.primary{background:var(--verde);color:white}button.secondary{background:var(--azul);color:white}button.ghost{background:#edf3f8;color:#17324d;border:1px solid var(--borde)}button:disabled{opacity:.5;cursor:not-allowed}.message{margin-top:14px;padding:12px 14px;border-radius:10px;background:#edf5fc;border:1px solid #c9dced;display:none}.message.show{display:block}.message.good{background:#eaf8ef;border-color:#9ed9ba;color:#075b3b}.message.bad{background:#fff0ef;border-color:#efb4af;color:#8d2019}.intro{background:white;border:1px solid var(--borde);border-radius:14px;padding:28px;text-align:center}.intro h2{font-size:1.5rem}.hidden{display:none!important}.error{padding:14px;background:#fff0ef;border:1px solid #efb4af;border-radius:10px;color:#8d2019;white-space:pre-wrap}
-@media(max-width:760px){.game{grid-template-columns:1fr}.score{margin-left:0}.panel{padding:14px}.tile{min-height:52px}.slot{min-height:68px}}
-
-/* Interfaz inicial minimalista */
-body{background:#fff;color:#20354b;min-height:100vh}
-header{display:none}
-main{max-width:none;min-height:100vh;margin:0;padding:28px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.setup-card{width:min(100%,540px);padding:34px 36px;background:#fff;border:1px solid #e5edf5;border-radius:16px;box-shadow:0 8px 30px rgba(25,66,110,.07);text-align:center}
-.setup-card h2{font-size:clamp(1.55rem,3vw,2rem);font-weight:750;margin:0 0 26px;color:#20354b}
-.setup-fields{display:flex;flex-direction:column;gap:16px;text-align:left}
-.setup-fields .field{font-size:1rem;font-weight:650;gap:7px}
-select{width:100%;min-height:54px;border:1px solid #cbd8e6;border-radius:9px;background:#fff;color:#20354b;padding:12px 14px;font:inherit;font-size:1.03rem}
-.start-button{display:block;width:100%;min-height:56px;margin-top:24px;background:#1769c2!important;color:#fff!important;font-size:1.05rem}
-.secondary-actions{display:flex;gap:12px;margin-top:12px;width:100%}
-.pastel-button{flex:1;min-height:50px;background:#dcecff;color:#14549a;border:1px solid #c6defb;font-size:.98rem}
-.pastel-button:hover{background:#cfe3fb}
-.home-message{display:none;margin-top:16px;padding:12px;border-radius:9px;background:#f1f7ff;color:#234d78;text-align:left}
+:root{
+  --azul:#1268b3;--azul-claro:#edf6ff;--azul-cont:#9fcaf1;
+  --verde:#16845b;--texto:#17324d;--borde:#c9dced;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--texto);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1400px;margin:auto;padding:24px 18px}
+button,select{font:inherit}
+button{border:0;border-radius:9px;padding:10px 15px;font-weight:700;cursor:pointer}
+button:focus-visible,select:focus-visible,.tile:focus-visible,.slot:focus-visible{outline:3px solid #f3b23f;outline-offset:2px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hidden{display:none!important}
+.intro,.panel,.toolbar,.actions{background:white;border:1px solid var(--borde);border-radius:14px}
+.setup-card{width:min(100%,540px);margin:8vh auto;padding:32px;text-align:center;box-shadow:0 8px 30px #19426e12}
+.setup-fields{display:grid;gap:15px;text-align:left}
+.field{display:grid;gap:6px;font-weight:650}
+select{width:100%;min-height:50px;border:1px solid #cbd8e6;border-radius:9px;padding:10px;background:#fff;color:var(--texto)}
+.primary{background:#1769c2;color:white}
+.secondary{background:var(--azul);color:white}
+.ghost{background:#edf3f8;color:var(--texto);border:1px solid var(--borde)}
+.start-button{width:100%;margin-top:20px;min-height:52px}
+.secondary-actions{display:flex;gap:10px;margin-top:12px}
+.pastel-button{flex:1;background:#dcecff;color:#14549a}
+.home-message{display:none;margin-top:14px;padding:12px;background:#f1f7ff;border-radius:9px;text-align:left;white-space:pre-wrap}
 .home-message.show{display:block}
-@media(max-width:520px){main{padding:16px}.setup-card{padding:28px 20px}.secondary-actions{gap:8px}.pastel-button{padding:10px 6px;font-size:.9rem}}
-
+.toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:14px;margin-bottom:14px}
+.pill{background:#eaf4ff;color:#064b86;border-radius:999px;padding:7px 12px;font-weight:700}
+.progress{height:11px;background:#dce8f2;border-radius:99px;overflow:hidden;flex:1;min-width:90px}
+.progress span{height:100%;display:block;background:#18a66a;width:0}
+.score{font-weight:700}
+.nav-matrix{display:flex;flex-wrap:wrap;gap:7px;background:#fff;border:1px solid var(--borde);border-radius:12px;padding:12px;margin-bottom:14px}
+.nav-button{width:42px;height:42px;padding:0;background:var(--azul-claro);color:#164e7d;border:1px solid #d2e7f8}
+.nav-button.answered{background:var(--azul-cont);color:#083e70;border-color:#78afe0}
+.nav-button.current{outline:3px solid #f1ad29;outline-offset:1px}
+.legend{font-size:.88rem;color:#4c6680;margin:0 0 14px}
+.game{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.panel{padding:16px;min-width:0}
+.panel.source{background:#f1f8ff}
+.panel.target{background:#f1fbf5;border-color:#9ed9ba}
+h2{font-size:1.15rem;margin:0 0 5px}
+.hint{margin:0 0 12px;color:#4c6680;font-size:.92rem}
+.tiles,.slotgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(75px,1fr));gap:9px;align-content:start}
+.tile{min-height:52px;padding:8px;border:2px solid #6ba8df;background:#fff;border-radius:10px;font-size:1.08rem;font-weight:750;display:flex;align-items:center;justify-content:center;text-align:center;overflow-wrap:anywhere;cursor:grab;user-select:none;touch-action:manipulation}
+.tile.selected{outline:3px solid #f2a900;outline-offset:1px}
+.tile.dragging{opacity:.4}
+.slot{min-height:70px;border:2px dashed #a6c7dd;border-radius:10px;background:#f7fbff;padding:5px;display:flex;flex-direction:column;gap:3px;align-items:stretch;justify-content:center;text-align:center}
+.slot.over{background:#d7f5e6;border-color:#16845b}
+.slotnum{font-size:.72rem;color:#58728a;text-align:left;padding-left:4px}
+.slot .tile{min-height:42px;font-size:.98rem;padding:5px}
+.actions{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px;padding:13px}
+.buttons{display:flex;gap:9px;flex-wrap:wrap}
+.finish-card{max-width:650px;margin:10vh auto;padding:30px;text-align:center}
+#error{max-width:800px;margin:30px auto;padding:14px;background:#fff0ef;color:#8d2019;white-space:pre-wrap}
+#fireworks{position:fixed;inset:0;width:100%;height:100%;z-index:10;pointer-events:none;background:#030713}
+@media(max-width:760px){
+  .game{grid-template-columns:1fr}
+  .setup-card{padding:25px 18px}
+  .nav-button{width:38px;height:38px}
+}
 </style>
 </head>
 <body>
-
 <main>
-  <div id="error" class="error hidden" role="alert"></div>
+  <div id="error" class="hidden" role="alert"></div>
+
   <section id="welcome" class="intro setup-card">
     <h2>Ejercicios para ordenar</h2>
     <div class="setup-fields">
-      <label class="field">Alumno<select id="student"><option value="">Selecciona alumno</option></select></label>
-      <label class="field">Número de ejercicios<select id="exerciseCount">
-        <option value="5">5 ejercicios</option>
-        <option value="10">10 ejercicios</option>
-        <option value="15">15 ejercicios</option>
-        <option value="20">20 ejercicios</option>
-        <option value="25">25 ejercicios</option>
-      </select></label>
-      <label class="field">Prueba<select id="exam"><option value="">Cargando pruebas…</option></select></label>
+      <label class="field">Alumno
+        <select id="student"><option value="">Selecciona alumno</option></select>
+      </label>
+      <label class="field">Número de ejercicios
+        <select id="exerciseCount">
+          <option value="5">5 ejercicios</option>
+          <option value="10">10 ejercicios</option>
+          <option value="15">15 ejercicios</option>
+          <option value="20">20 ejercicios</option>
+          <option value="25">25 ejercicios</option>
+        </select>
+      </label>
+      <label class="field">Prueba
+        <select id="exam"><option value="">Cargando pruebas…</option></select>
+      </label>
     </div>
     <button id="start" class="primary start-button">Comenzar prueba</button>
     <div class="secondary-actions">
       <button id="trophies" class="pastel-button">Sala de trofeos</button>
       <button id="history" class="pastel-button">Ver historial</button>
     </div>
-    <div id="homeMessage" class="home-message" role="status" aria-live="polite"></div>
+    <div id="homeMessage" class="home-message" role="status"></div>
   </section>
+
   <section id="play" class="hidden">
     <div class="toolbar">
-      <span id="counter" class="pill">Ejercicio 1 de 1</span>
-      <div class="progress" aria-label="Progreso"><span id="progress"></span></div>
-      <span class="score">Puntuación: <span id="score">0</span></span>
+      <span id="counter" class="pill"></span>
+      <div class="progress"><span id="progress"></span></div>
+      <span class="score">Aciertos: <span id="score">0</span></span>
     </div>
+    <div id="navMatrix" class="nav-matrix" aria-label="Navegación de ejercicios"></div>
+    <p class="legend">Azul claro: por contestar · Azul más oscuro: contestado · Borde amarillo: ejercicio actual</p>
     <div class="game">
       <section class="panel source">
-        <h2>Elementos</h2><p class="hint">Arrastra una ficha a la derecha o selecciónala y pulsa una casilla.</p>
-        <div id="source" class="tiles" aria-label="Elementos desordenados"></div>
+        <h2>Elementos</h2>
+        <p class="hint">Arrastra una ficha o selecciónala y pulsa una casilla.</p>
+        <div id="source" class="tiles"></div>
       </section>
       <section class="panel target">
-        <h2>Tu orden</h2><p class="hint">Puedes soltar en cualquier posición y reorganizar las fichas.</p>
-        <div id="target" class="slotgrid" aria-label="Zona para ordenar"></div>
+        <h2>Tu orden</h2>
+        <p class="hint">Puedes cambiar las fichas de posición antes de avanzar.</p>
+        <div id="target" class="slotgrid"></div>
       </section>
     </div>
     <div class="actions">
-      <span id="studentNote">Puedes cambiar el orden antes de validar.</span>
+      <span id="studentNote">Al avanzar se guardará tu respuesta, aunque esté incompleta.</span>
       <div class="buttons">
-        <button id="reset" class="ghost">Reiniciar ejercicio</button>
-        <button id="check" class="primary">Validar respuesta</button>
-        <button id="next" class="secondary hidden">Siguiente ejercicio →</button>
+        <button id="reset" class="ghost">Vaciar ejercicio</button>
+        <button id="next" class="secondary">Siguiente →</button>
       </div>
     </div>
-    <div id="message" class="message" role="status" aria-live="polite"></div>
   </section>
-  <section id="finished" class="intro hidden">
-    <h2>¡Prueba completada!</h2><p id="summary"></p><button id="again" class="primary">Hacer otra prueba</button>
+
+  <section id="finished" class="intro finish-card hidden">
+    <h2>¡Prueba completada!</h2>
+    <p id="summary"></p>
+    <button id="again" class="primary">Hacer otra prueba</button>
   </section>
 </main>
+<canvas id="fireworks" class="hidden"></canvas>
+
 <script>
 (() => {
-  "use strict";
-  const $ = id => document.getElementById(id);
-  const state = { indexConfig:null, battery:null, selectedExercises:[], current:0, score:0, selectedId:null, checked:false };
+"use strict";
+
+const $ = id => document.getElementById(id);
+const STORAGE_HISTORY = "ordenar_historial_v1";
+const STORAGE_TROPHIES = "ordenar_trofeos_v1";
+
+const state = {
+  indexConfig:null,
+  battery:null,
+  selectedExercises:[],
+  current:0,
+  score:0,
+  selectedId:null
+};
+
 const ALUMNOS = [
-  { id: "alumno_01", nombre: "Miguel" },
-  { id: "alumno_02", nombre: "Papá" },
-  { id: "alumno_03", nombre: "Mamá" },
-  { id: "alumno_04", nombre: "Usuario 1" },
-  { id: "alumno_05", nombre: "Usuario 2" }
+  {id:"alumno_01",nombre:"Miguel"},
+  {id:"alumno_02",nombre:"Papá"},
+  {id:"alumno_03",nombre:"Mamá"},
+  {id:"alumno_04",nombre:"Usuario 1"},
+  {id:"alumno_05",nombre:"Usuario 2"}
 ];
-  
-  const params = new URLSearchParams(location.search);
-  const configName = params.get("config");
-  const configPath = params.get("rutaConfig");
-  const safePart = s => (s || "").replace(/\\/g,"/").split("/").filter(p => p && p !== "." && p !== "..").join("/");
-  function showError(msg){ $("error").textContent=msg; $("error").classList.remove("hidden"); $("welcome").classList.add("hidden"); }
-  function loadScript(url){
-    return new Promise((resolve,reject)=>{
-      const script=document.createElement("script");
-      script.src=url; script.onload=()=>resolve(); script.onerror=()=>reject(new Error("No se pudo cargar: "+url));
-      document.head.appendChild(script);
+
+const params = new URLSearchParams(location.search);
+const configName = params.get("config");
+const configPath = params.get("rutaConfig");
+
+const safePart = s => (s||"")
+  .replace(/\\/g,"/")
+  .split("/")
+  .filter(p=>p&&p!=="."&&p!=="..")
+  .join("/");
+
+const readStore = key => {
+  try{return JSON.parse(localStorage.getItem(key)||"[]")}
+  catch{return []}
+};
+
+const writeStore = (key,value) => {
+  try{localStorage.setItem(key,JSON.stringify(value))}
+  catch(e){console.error("No se pudo guardar:",e)}
+};
+
+function showError(msg){
+  $("error").textContent=msg;
+  $("error").classList.remove("hidden");
+  $("welcome").classList.add("hidden");
+}
+
+function loadScript(url){
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src=url;
+    s.onload=resolve;
+    s.onerror=()=>reject(new Error("No se pudo cargar: "+url));
+    document.head.appendChild(s);
+  });
+}
+
+function addOption(select,value,label){
+  const o=document.createElement("option");
+  o.value=value;
+  o.textContent=label;
+  select.appendChild(o);
+}
+
+async function init(){
+  if(!configName||!configPath){
+    showError("Faltan los parámetros config y rutaConfig en la URL.");
+    return;
+  }
+
+  try{
+    await loadScript(safePart(configPath)+"/"+safePart(configName)+".js");
+
+    if(!window.CONFIG_EXAMENES||!Array.isArray(window.CONFIG_EXAMENES.baterias)){
+      throw Error("El grupo no define CONFIG_EXAMENES.baterias.");
+    }
+
+    state.indexConfig=window.CONFIG_EXAMENES;
+
+    $("student").innerHTML='<option value="">Selecciona alumno</option>';
+    ALUMNOS.forEach(s=>addOption($("student"),s.id,s.nombre));
+
+    $("exam").innerHTML='<option value="">Selecciona una prueba</option>';
+    state.indexConfig.baterias.forEach((b,i)=>
+      addOption($("exam"),String(i),b.titulo||b.id||b.archivo)
+    );
+  }catch(e){
+    showError("Error al iniciar.\n"+e.message+
+      "\nComprueba las rutas y abre la aplicación desde un servidor web local.");
+  }
+}
+
+function currentExercise(){
+  return state.selectedExercises[state.current];
+}
+
+function shuffle(items){
+  const a=items.map((value,i)=>({
+    id:"item-"+i+"-"+Math.random().toString(36).slice(2),
+    value,
+    correctIndex:i
+  }));
+
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function renderMatrix(){
+  const box=$("navMatrix");
+  box.innerHTML="";
+
+  state.selectedExercises.forEach((ex,i)=>{
+    const b=document.createElement("button");
+    b.className="nav-button"+
+      (ex.answered?" answered":"")+
+      (i===state.current?" current":"");
+    b.textContent=String(i+1);
+    b.title=`Ir al ejercicio ${i+1}`;
+    b.setAttribute(
+      "aria-label",
+      `Ejercicio ${i+1}, ${ex.answered?"contestado":"por contestar"}`
+    );
+    b.addEventListener("click",()=>{
+      saveCurrent();
+      state.current=i;
+      renderExercise();
     });
+    box.appendChild(b);
+  });
+}
+
+function makeTile(item){
+  const el=document.createElement("div");
+  el.className="tile";
+  el.draggable=true;
+  el.tabIndex=0;
+  el.textContent=item.value;
+  el.dataset.id=item.id;
+  el.setAttribute("role","button");
+
+  el.addEventListener("dragstart",e=>{
+    e.dataTransfer.setData("text/plain",item.id);
+    e.dataTransfer.effectAllowed="move";
+    el.classList.add("dragging");
+  });
+
+  el.addEventListener("dragend",()=>{
+    el.classList.remove("dragging");
+  });
+
+  const select=()=>{
+    state.selectedId=item.id;
+    document.querySelectorAll(".tile").forEach(t=>
+      t.classList.toggle("selected",t.dataset.id===item.id)
+    );
+  };
+
+  el.addEventListener("click",select);
+  el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){
+      e.preventDefault();
+      select();
+    }
+  });
+
+  return el;
+}
+
+function renderExercise(){
+  const ex=currentExercise();
+  if(!ex)return;
+
+  state.selectedId=null;
+
+  $("counter").textContent=
+    `Ejercicio ${state.current+1} de ${state.selectedExercises.length}`;
+
+  const answered=state.selectedExercises.filter(x=>x.answered).length;
+  $("progress").style.width=
+    `${(answered/state.selectedExercises.length)*100}%`;
+
+  $("source").innerHTML="";
+  $("target").innerHTML="";
+
+  /*
+   * CORRECCIÓN:
+   * Las fichas se crean una sola vez por ejercicio y conservan sus IDs.
+   * Las casillas también se conservan al volver a dibujar la pantalla.
+   */
+  if(!Array.isArray(ex.items)){
+    ex.items=shuffle(ex.elementos);
   }
-  function option(select,value,label){ const o=document.createElement("option");o.value=value;o.textContent=label;select.appendChild(o); }
-  async function init(){
-    if(!configName || !configPath){ showError("Faltan los parámetros de configuración en la URL. Ejemplo: Ordenar.html?config=Ord_M_%20SMD&rutaConfig=Grupos_Baterias"); return; }
-    try {
-      const path = safePart(configPath)+"/"+safePart(configName)+".js";
-      await loadScript(path);
-      if(!window.CONFIG_EXAMENES || !Array.isArray(window.CONFIG_EXAMENES.baterias)) throw new Error("El índice no define CONFIG_EXAMENES.baterias.");
-      state.indexConfig=window.CONFIG_EXAMENES;
-      if ($("subject")) $("subject").textContent=state.indexConfig.asignatura || "Juegos educativos";
-      
-$("student").innerHTML='<option value="">Selecciona alumno</option>';
-ALUMNOS.forEach(s => option($("student"), s.id, s.nombre));
-      
-      $("exam").innerHTML='<option value="">Selecciona una prueba</option>';
-      state.indexConfig.baterias.forEach((b,i)=>option($("exam"),String(i),b.titulo || b.id || b.archivo));
-      if(!$("student").options.length || $("student").options.length===1) $("student").disabled=true;
-    } catch(e){ showError("Error al iniciar la aplicación.\n"+e.message+"\n\nComprueba los nombres de archivos y abre el proyecto mediante un servidor web local."); }
+
+  const items=ex.items;
+  ex.itemMap=new Map(items.map(x=>[x.id,x]));
+
+  if(!Array.isArray(ex.slots)){
+    if(Array.isArray(ex.savedSlots)){
+      ex.slots=ex.savedSlots.map(saved=>
+        saved ? items.find(item=>item.id===saved.id)||null : null
+      );
+    }else{
+      ex.slots=Array(ex.elementos.length).fill(null);
+    }
   }
-  function currentExercise(){ return state.selectedExercises[state.current]; }
-  function shuffledCopy(items){
-    const a=items.map((v,i)=>({id:"item-"+i+"-"+Math.random().toString(36).slice(2,8),value:v,correctIndex:i}));
-    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
-    return a;
+
+  items.forEach(item=>{
+    if(!ex.slots.some(x=>x&&x.id===item.id)){
+      $("source").appendChild(makeTile(item));
+    }
+  });
+
+  ex.slots.forEach((item,i)=>{
+    const slot=document.createElement("div");
+    slot.className="slot";
+    slot.dataset.index=i;
+    slot.tabIndex=0;
+
+    const n=document.createElement("span");
+    n.className="slotnum";
+    n.textContent=`${i+1}.`;
+    slot.appendChild(n);
+
+    slot.addEventListener("dragover",e=>{
+      e.preventDefault();
+      slot.classList.add("over");
+    });
+
+    slot.addEventListener("dragleave",()=>{
+      slot.classList.remove("over");
+    });
+
+    slot.addEventListener("drop",e=>{
+      e.preventDefault();
+      slot.classList.remove("over");
+      putItem(e.dataTransfer.getData("text/plain"),i);
+    });
+
+    slot.addEventListener("click",()=>{
+      if(state.selectedId)putItem(state.selectedId,i);
+    });
+
+    $("target").appendChild(slot);
+
+    if(item){
+      slot.appendChild(makeTile(item));
+    }
+  });
+
+  updateMatrixOnly();
+}
+
+function updateMatrixOnly(){
+  renderMatrix();
+  $("score").textContent=String(
+    state.selectedExercises.filter(x=>x.correct).length
+  );
+}
+
+function putItem(id,index){
+  const ex=currentExercise();
+  const item=ex.itemMap.get(id);
+  if(!item)return;
+
+  const old=ex.slots.findIndex(x=>x&&x.id===id);
+  const displaced=ex.slots[index];
+
+  if(old>=0)ex.slots[old]=displaced||null;
+  ex.slots[index]=item;
+
+  state.selectedId=null;
+  renderExercise();
+}
+
+function saveCurrent(){
+  const ex=currentExercise();
+  if(!ex)return;
+
+  ex.answered=true;
+  ex.savedSlots=(ex.slots||[]).map(x=>
+    x?{id:x.id,value:x.value,correctIndex:x.correctIndex}:null
+  );
+
+  ex.correct=
+    ex.savedSlots.length===ex.elementos.length&&
+    ex.savedSlots.every((x,i)=>x&&x.correctIndex===i);
+
+  if(ex.correct&&!ex.trophyRecorded){
+    const trophies=readStore(STORAGE_TROPHIES);
+    trophies.push({
+      date:new Date().toISOString(),
+      battery:state.battery.titulo||"Prueba",
+      exerciseId:ex.id??state.current+1
+    });
+    writeStore(STORAGE_TROPHIES,trophies);
+    ex.trophyRecorded=true;
   }
-  function renderExercise(){
-    state.selectedId=null;state.checked=false;
-    const ex=currentExercise(); if(!ex) return;
-    $("counter").textContent=`Ejercicio ${state.current+1} de ${state.selectedExercises.length}`;
-    $("progress").style.width=`${(state.current/state.selectedExercises.length)*100}%`;
-    $("message").className="message";$("message").textContent="";
-    $("check").classList.remove("hidden");$("next").classList.add("hidden");
-    $("source").innerHTML="";$("target").innerHTML="";
-    const items=shuffledCopy(ex.elementos);
-    const sourceItems=document.createElement("div"); sourceItems.id="sourceItems";sourceItems.className="tiles";sourceItems.style.display="contents";
-    items.forEach(item=>$("source").appendChild(makeTile(item)));
+
+  renderMatrix();
+}
+
+function start(){
+  const ei=$("exam").value;
+  if(ei===""){alert("Selecciona una prueba.");return}
+  if(!$("student").value){alert("Selecciona un alumno.");return}
+
+  const meta=state.indexConfig.baterias[Number(ei)];
+
+  loadScript(
+    safePart(meta.ruta||"Baterias")+"/"+safePart(meta.archivo)
+  ).then(()=>{
+    const battery=window.CONFIG_EJERCICIOS;
+
+    if(!battery||!Array.isArray(battery.ejercicios)){
+      throw Error("El archivo no define CONFIG_EJERCICIOS.ejercicios.");
+    }
+
+    const count=Number($("exerciseCount").value);
+
+    if(battery.ejercicios.length<count){
+      alert(`Esta prueba solo contiene ${battery.ejercicios.length} ejercicios.`);
+      return;
+    }
+
+    state.battery={
+      ...battery,
+      titulo:meta.titulo||battery.titulo||meta.archivo
+    };
+
+    const indices=Array.from(
+      {length:battery.ejercicios.length},
+      (_,i)=>i
+    );
+    const chosen=[];
+
+    while(chosen.length<count){
+      const r=Math.floor(Math.random()*indices.length);
+      chosen.push(indices.splice(r,1)[0]);
+    }
+
+    state.selectedExercises=chosen.map(i=>({
+      ...battery.ejercicios[i],
+      elementos:battery.ejercicios[i].elementos.slice(),
+      answered:false,
+      correct:false,
+      trophyRecorded:false,
+      items:null,
+      slots:null,
+      savedSlots:null
+    }));
+
+    state.current=0;
+    state.score=0;
+
+    $("welcome").classList.add("hidden");
+    $("finished").classList.add("hidden");
+    $("play").classList.remove("hidden");
+
+    renderExercise();
+  }).catch(e=>{
+    showError("No se pudo cargar la batería.\n"+e.message);
+  });
+}
+
+function finishRun(){
+  saveCurrent();
+
+  const total=state.selectedExercises.length;
+  const score=state.selectedExercises.filter(x=>x.correct).length;
+  state.score=score;
+
+  const record={
+    date:new Date().toISOString(),
+    student:$("student").selectedOptions[0]?.textContent||"—",
+    battery:state.battery.titulo,
+    exercises:total,
+    correct:score,
+    grade:Math.round(score/total*100)
+  };
+
+  const history=readStore(STORAGE_HISTORY);
+  history.push(record);
+  writeStore(STORAGE_HISTORY,history);
+
+  $("play").classList.add("hidden");
+  $("finished").classList.remove("hidden");
+  $("summary").textContent=
+    `${score} de ${total} aciertos · Nota: ${record.grade}% · ${record.battery}`;
+
+  if(score===total)playFireworks();
+}
+
+function goNext(){
+  saveCurrent();
+
+  if(state.current===state.selectedExercises.length-1){
+    finishRun();
+    return;
+  }
+
+  state.current++;
+  renderExercise();
+}
+
+function showHistory(){
+  const records=readStore(STORAGE_HISTORY);
+
+  $("homeMessage").textContent=records.length
+    ?records.slice().reverse().map(r=>
+      `${new Date(r.date).toLocaleString()} — ${r.student} — ${r.battery} — ${r.correct}/${r.exercises} — ${r.grade}%`
+    ).join("\n")
+    :"Aún no hay pruebas guardadas.";
+
+  $("homeMessage").classList.add("show");
+}
+
+function showTrophies(){
+  const trophies=readStore(STORAGE_TROPHIES);
+
+  $("homeMessage").textContent=trophies.length
+    ?trophies.slice().reverse().map(t=>
+      `🏆 ${t.battery} · ejercicio ${t.exerciseId} · ${new Date(t.date).toLocaleString()}`
+    ).join("\n")
+    :"Aún no hay ejercicios perfectos guardados.";
+
+  $("homeMessage").classList.add("show");
+}
+
+function playFireworks(){
+  const c=$("fireworks");
+  const ctx=c.getContext("2d");
+
+  c.width=innerWidth*devicePixelRatio;
+  c.height=innerHeight*devicePixelRatio;
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  c.classList.remove("hidden");
+
+  const colors=["#ff365e","#ffd43b","#44e0ff","#a66bff","#4dff88","#ff8b35"];
+  const particles=[];
+
+  for(let k=0;k<9;k++){
+    const x=Math.random()*innerWidth;
+    const y=80+Math.random()*innerHeight*.65;
+
+    for(let i=0;i<65;i++){
+      const a=Math.random()*Math.PI*2;
+      const s=1+Math.random()*6;
+
+      particles.push({
+        x,y,
+        vx:Math.cos(a)*s,
+        vy:Math.sin(a)*s,
+        life:45+Math.random()*35,
+        color:colors[k%colors.length],
+        size:2+Math.random()*3
+      });
+    }
+  }
+
+  let frame=0;
+
+  function draw(){
+    ctx.fillStyle="rgba(3,7,19,.22)";
+    ctx.fillRect(0,0,innerWidth,innerHeight);
+
+    particles.forEach(p=>{
+      if(p.life<=0)return;
+
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.vy+=.045;
+      p.vx*=.99;
+      p.life--;
+
+      const depth=Math.max(.2,p.life/65);
+      ctx.beginPath();
+      ctx.fillStyle=p.color;
+      ctx.shadowColor=p.color;
+      ctx.shadowBlur=15*depth;
+      ctx.arc(p.x,p.y,p.size*depth,0,Math.PI*2);
+      ctx.fill();
+    });
+
+    frame++;
+
+    if(frame<300){
+      requestAnimationFrame(draw);
+    }else{
+      c.classList.add("hidden");
+      ctx.clearRect(0,0,c.width,c.height);
+    }
+  }
+
+  draw();
+}
+
+$("start").addEventListener("click",start);
+$("next").addEventListener("click",goNext);
+
+$("reset").addEventListener("click",()=>{
+  const ex=currentExercise();
+
+  if(ex){
     ex.slots=Array(ex.elementos.length).fill(null);
-    ex.itemMap=new Map(items.map(x=>[x.id,x]));
-    ex.slots.forEach((_,i)=>{const slot=document.createElement("div");slot.className="slot";slot.dataset.index=i;slot.tabIndex=0;slot.setAttribute("aria-label",`Posición ${i+1}`);const num=document.createElement("span");num.className="slotnum";num.textContent=`${i+1}.`;slot.appendChild(num);slot.addEventListener("dragover",e=>{e.preventDefault();slot.classList.add("over")});slot.addEventListener("dragleave",()=>slot.classList.remove("over"));slot.addEventListener("drop",e=>{e.preventDefault();slot.classList.remove("over");const id=e.dataTransfer.getData("text/plain");if(id) placeItem(id,i)});slot.addEventListener("click",()=>{if(state.selectedId)placeItem(state.selectedId,i)});slot.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&state.selectedId){e.preventDefault();placeItem(state.selectedId,i)}});$("target").appendChild(slot);});
-    updateSlots(); $("score").textContent=state.score;
+    ex.savedSlots=null;
+    renderExercise();
   }
-  function makeTile(item){
-    const el=document.createElement("div");el.className="tile";el.draggable=true;el.tabIndex=0;el.textContent=item.value;el.dataset.id=item.id;el.setAttribute("role","button");el.setAttribute("aria-label",`Elemento ${item.value}; selecciona o arrastra`);
-    el.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",item.id);e.dataTransfer.effectAllowed="move";el.classList.add("dragging")});
-    el.addEventListener("dragend",()=>el.classList.remove("dragging"));
-    el.addEventListener("click",()=>{state.selectedId=item.id;document.querySelectorAll(".tile").forEach(t=>t.classList.toggle("selected",t.dataset.id===item.id));});
-    el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();state.selectedId=item.id;document.querySelectorAll(".tile").forEach(t=>t.classList.toggle("selected",t.dataset.id===item.id));}});
-    return el;
-  }
-  function locateItem(id){const ex=currentExercise();const source=Array.from($("source").querySelectorAll(".tile")).find(t=>t.dataset.id===id);if(source)return source;return Array.from($("target").querySelectorAll(".tile")).find(t=>t.dataset.id===id)||null;}
-  function placeItem(id,index){
-    if(state.checked)return;
-    const ex=currentExercise(), item=ex.itemMap.get(id);
-    if(!item || index<0 || index>=ex.slots.length)return;
+});
 
-    const previous=ex.slots.findIndex(x=>x&&x.id===id);
-    // Soltar una ficha en su propia casilla no cambia el orden.
-    if(previous===index){state.selectedId=null;updateSlots();return;}
+$("history").addEventListener("click",showHistory);
+$("trophies").addEventListener("click",showTrophies);
 
-    // Si la ficha ya estaba en la matriz, se retira y se cierra el hueco.
-    if(previous>=0){
-      ex.slots.splice(previous,1);
-      ex.slots.push(null);
-    }
+$("again").addEventListener("click",()=>{
+  $("finished").classList.add("hidden");
+  $("welcome").classList.remove("hidden");
+});
 
-    // Inserta la ficha en la posición elegida y desplaza en cadena las demás
-    // hacia la derecha. Si se supera la última casilla, la ficha sobrante
-    // volverá al panel izquierdo al sincronizar la interfaz.
-    let carry=item;
-    for(let i=index;i<ex.slots.length && carry;i++){
-      const next=ex.slots[i];
-      ex.slots[i]=carry;
-      carry=next;
-    }
-
-    // La matriz de datos manda: cada ficha vuelve a su casilla o al panel
-    // izquierdo si ya no cabe en la matriz.
-    ex.itemMap.forEach((knownItem,knownId)=>{
-      const tile=document.querySelector(`.tile[data-id="${knownId}"]`);
-      if(!tile)return;
-      const placedAt=ex.slots.findIndex(x=>x&&x.id===knownId);
-      if(placedAt>=0)$("target").children[placedAt].appendChild(tile);
-      else $("source").appendChild(tile);
-      tile.classList.remove("selected");
-    });
-    state.selectedId=null;
-    updateSlots();
-  }
-  function updateSlots(){
-    const ex=currentExercise();if(!ex)return;
-    Array.from($("target").children).forEach((slot,i)=>{slot.classList.remove("over");const num=slot.querySelector(".slotnum");if(num)num.textContent=`${i+1}.`;});
-    $("studentNote").textContent=ex.slots.every(Boolean)?"Todas las posiciones están ocupadas. ¡Comprueba tu respuesta!":"Coloca todas las fichas. Puedes cambiar el orden antes de validar.";
-  }
-  function start(){
-    const examIndex=$("exam").value;if(examIndex===""){alert("Selecciona una prueba.");return;}
-    const studentSelect=$("student");if(!studentSelect.disabled && !studentSelect.value){alert("Selecciona tu nombre.");return;}
-    const batteryMeta=state.indexConfig.baterias[Number(examIndex)];
-    const batteryUrl=safePart(batteryMeta.ruta || "Baterias")+"/"+safePart(batteryMeta.archivo);
-    loadScript(batteryUrl).then(()=>{
-      const battery=window.CONFIG_EJERCICIOS;
-      if(!battery || !Array.isArray(battery.ejercicios))throw new Error("El archivo de batería no define CONFIG_EJERCICIOS.ejercicios.");
-      state.battery=battery;
-      const total=battery.ejercicios.length;
-      if(!total)throw new Error("Esta batería no contiene ejercicios.");
-      const count=Number.parseInt($("exerciseCount").value,10);
-      if(total<count){alert(`Esta prueba solo contiene ${total} ejercicios. Añade más ejercicios o elige otra prueba.`);return;}
-      // Selección de índices sin reemplazo; no se modifica el array original.
-      const indices=Array.from({length:total},(_,i)=>i), chosen=[];
-      while(chosen.length<count){const r=Math.floor(Math.random()*indices.length);chosen.push(indices.splice(r,1)[0]);}
-      state.selectedExercises=chosen.map(i=>{const e=battery.ejercicios[i];if(!Array.isArray(e.elementos)||e.elementos.length<2)throw new Error(`El ejercicio ${i+1} debe tener al menos dos elementos.`);return {...e,elementos:e.elementos.slice()};});
-      state.current=0;state.score=0;
-      $("welcome").classList.add("hidden");$("finished").classList.add("hidden");$("play").classList.remove("hidden");renderExercise();
-    }).catch(e=>showError("No se pudo cargar la batería.\n"+e.message+"\nComprueba la ruta y la estructura del archivo JS."));
-  }
-  $("start").addEventListener("click",start);
-  $("trophies").addEventListener("click",()=>{
-    $("homeMessage").textContent="La sala de trofeos estará disponible cuando se incorpore el sistema de logros y guardado de resultados.";
-    $("homeMessage").classList.add("show");
-  });
-  $("history").addEventListener("click",()=>{
-    $("homeMessage").textContent="Todavía no hay historial guardado. La versión actual no conserva resultados entre sesiones.";
-    $("homeMessage").classList.add("show");
-  });
-  $("reset").addEventListener("click",renderExercise);
-  $("check").addEventListener("click",()=>{
-    const ex=currentExercise();
-    if(!ex.slots.every(Boolean)){ $("message").className="message show bad";$("message").textContent="Coloca todos los elementos antes de validar.";return; }
-    const ok=ex.slots.every((item,i)=>item.correctIndex===i);
-    state.checked=true;
-    $("message").className="message show "+(ok?"good":"bad");
-    $("message").textContent=ok?"¡Correcto! Has ordenado todos los elementos.":"Todavía no está en el orden correcto. Puedes revisar la respuesta y volver a intentarlo.";
-    if(ok){state.score++;$("score").textContent=state.score;$("progress").style.width=`${((state.current+1)/state.selectedExercises.length)*100}%`;$("check").classList.add("hidden");$("next").classList.remove("hidden");}
-    else state.checked=false;
-  });
-  $("next").addEventListener("click",()=>{state.current++;if(state.current>=state.selectedExercises.length){$("play").classList.add("hidden");$("finished").classList.remove("hidden");$("summary").textContent=`${state.score} de ${state.selectedExercises.length} ejercicios completados correctamente. Alumno: ${$("student").selectedOptions[0]?.textContent || "—"}.`;return;}renderExercise();});
-  $("again").addEventListener("click",()=>{$("finished").classList.add("hidden");$("welcome").classList.remove("hidden");});
-  init();
+init();
 })();
 </script>
 </body>
