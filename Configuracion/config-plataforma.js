@@ -206,10 +206,6 @@ const MENU_DATA = [
            {titulo: "PEP-8: Demografía y población",
             url: "HTML/Test_Ayuda.html?config=CC_DemografiaPoblacion&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
-           },
-           {titulo: "PEP-8: Demography and population",
-            url: "HTML/Test_Ayuda.html?config=CC_I_DemografiaPoblacion&rutaConfig=Grupos_Baterias", 
-            rutaBase: "Ruta1"
            }
        ]           
    },  
