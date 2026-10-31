@@ -203,7 +203,7 @@ const MENU_DATA = [
 
    {titulo: "Ciencias",
        submenus: [
-           {titulo: "Demografía y población",
+           {titulo: "PEP-8: Demografía y población",
             url: "HTML/Test_Ayuda.html?config=CC_DemografiaPoblacion&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
            },
