@@ -4,8 +4,8 @@ var CONFIG_EXAMENES = {
     asignatura: "Vocabulario en francés", // Corregido el nombre de la asignatura
     baterias: [
         {
-            id: "PEP8 - Cifras_01",
-            titulo: "Saludos y frases educadas",
+            id: "Cifras_01",
+            titulo: "PEP8 - Saludos y frases educadas",
             archivo: "Fr_Saludos_Educado.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
