@@ -26,6 +26,12 @@ var CONFIG_EXAMENES = {
             titulo: "PEP8 - verbo avoir",
             archivo: "FR_Verbo_AVOIR.js", 
             ruta: "Baterias" 
+        },
+        {
+            id: "Cifras_05",
+            titulo: "PEP8 - Expresiones con avoir / être",
+            archivo: "FR_Expresiones_avoir-etre.js", 
+            ruta: "Baterias" 
         }
     ]
 };
