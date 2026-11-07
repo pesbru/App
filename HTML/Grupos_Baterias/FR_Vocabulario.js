@@ -20,6 +20,12 @@ var CONFIG_EXAMENES = {
             titulo: "PEP8 - verbo être",
             archivo: "FR_Verbo_ETRE.js", 
             ruta: "Baterias" 
+        },
+        {
+            id: "Cifras_04",
+            titulo: "PEP8 - verbo avoir",
+            archivo: "FR_Verbo_AVOIR.js", 
+            ruta: "Baterias" 
         }
     ]
 };
