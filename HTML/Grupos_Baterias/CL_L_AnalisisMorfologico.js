@@ -4,31 +4,31 @@ var CONFIG_EXAMENES = {
     baterias: [
         {
             id: "LG_001",
-            titulo: "PEP7-Clasifica verbos por conjugación (infinitivos)",
+            titulo: "PEP7-Clasifica verbos: conjugación (infinitivos)",
             archivo: "CL_L_Conjugaciones_Infinitivos.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
             id: "LG_002",
-            titulo: "PEP7-Clasifica verbos por conjugación (conjugados)",
+            titulo: "PEP7-Clasifica verbos: conjugación (conjugados)",
             archivo: "CL_L_Conjugaciones.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
             id: "LG_003",
-            titulo: "PEP8-clasifica verbos por número y persona (con pronombre)",
+            titulo: "PEP8-Clasifica verbos: número y persona (con pronombre)",
             archivo: "CL_L_Verbo_N_y_Persona.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
             id: "LG_004",
-            titulo: "PEP8-clasifica verbos: número y persona (frases)",
+            titulo: "PEP8-Clasifica verbos: número y persona (frases)",
             archivo: "CL_L_Verbo_N_y_Persona_Frases.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
         {
             id: "LG_005",
-            titulo: "PEP8-clasifica verbos: tiempos Simples Indicativo",
+            titulo: "PEP8-Clasifica verbos: tiempos Simples Indicativo",
             archivo: "CL_L_Verbo_IndicativoSimples.js", // ¡CORREGIDO! Añadido el .js al final
             ruta: "Baterias" 
         },
