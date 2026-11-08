@@ -1,5 +1,5 @@
 window.DATOS_BATERIA = {
-    categorias: ["Infinitivo'", "Gerundio", "Participio",
+    categorias: ["Infinitivo'", "Gerundio", "Participio"],
     palabras: [
         { texto: "Abrir", cat: 0 },
         { texto: "Acabar", cat: 0 },
