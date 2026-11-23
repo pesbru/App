@@ -58,6 +58,12 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
+            titulo: "Unidad seguida de ceros",
+            // CORREGIDO: Apunta al ejecutable correcto, le pasa la lista de Mates y le dice dónde está el grupo
+            url: "HTML/Test_Ayuda.html?config=M_U000&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
+        },
+        {
             titulo: "La hora",
             url: "HTML/T_Imagenes.html?config=IM_Hora&rutaConfig=Grupos_Baterias", 
             rutaBase: "Ruta1"
