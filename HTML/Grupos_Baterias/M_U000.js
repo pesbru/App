@@ -14,6 +14,12 @@ var CONFIG_EXAMENES = {
             titulo: "Multiplicación de números decimales",
             archivo: "M_X_D1000.js",
             ruta: "Baterias" 
+        },
+        {
+            id: "Calculo_03",
+            titulo: "División de números decimales",
+            archivo: "M_D_D1000.js",
+            ruta: "Baterias" 
         }
     ]
 };
