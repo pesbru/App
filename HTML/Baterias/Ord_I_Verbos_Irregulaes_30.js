@@ -1,7 +1,7 @@
 // Cada ejercicio.elementos está definido en el orden correcto.
 // La aplicación presenta una copia desordenada; este archivo no se modifica.
 window.CONFIG_EJERCICIOS = {
-  titulo: "25 Verbos irregulares",
+  titulo: "30 Verbos irregulares",
   tipo: "orden-secuencial",
   instrucciones: "Ordena las palabras: Infinitivo / Pasado Simple / Participio Pasado.",
   ejercicios: [
