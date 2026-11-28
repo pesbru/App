@@ -157,6 +157,11 @@ const MENU_DATA = [
             rutaBase: "Ruta1"
         },
         {
+            titulo: "Verbos irregulares",
+            url: "HTML/Ordenar.html?config=Ord_I_ Verbos&rutaConfig=Grupos_Baterias", 
+            rutaBase: "Ruta1"
+        },
+        {
             titulo: "Listados",
             url: "HTML/Creador_Hojas.html?config=Grupos_Baterias/IM_I_Vocabulario.js", 
             rutaBase: "Ruta1"
